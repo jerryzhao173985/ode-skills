@@ -1,0 +1,87 @@
+# Makefile for the ODE demos in this directory.
+#
+# Headless (physics only, no renderer) -- built in the top dir:
+#   falling_stack — a tower of boxes/spheres dropped onto a ground plane
+#   ragdoll       — capsules linked by ball + hinge joints, hitting a trimesh floor
+#
+# Rendered (DrawStuff via a native macOS GLUT backend) -- built in build/:
+#   build/buggy_ramp           — a wheeled buggy that auto-drives over a ramp
+#   build/buggy_ramp_headless  — the SAME physics with no window, for verification
+#
+# We link against Homebrew's libode (physics only -- no drawstuff). Because
+# libode is a C++ library, we use the C++ driver (c++) to compile and link:
+# the .c extension is still compiled as C, but the c++ driver pulls in the
+# C++ runtime (libc++) that libode depends on. Flags/libs come from
+# ode-config so the include path and precision always match the library.
+
+CXX        ?= c++
+ODE_CFLAGS := $(shell ode-config --cflags)
+ODE_LIBS   := $(shell ode-config --libs)
+
+TARGETS := falling_stack ragdoll
+
+# --- vendored DrawStuff + native GLUT backend (for the buggy demo) ---
+DS_DIR     := third_party/drawstuff
+DS_INC     := -I$(DS_DIR)/include
+DS_SRCINC  := -I$(DS_DIR)/src
+DS_CFGINC  := -I$(DS_DIR)/config
+TEX_PATH   := $(CURDIR)/$(DS_DIR)/textures
+FRAMEWORKS := -framework GLUT -framework OpenGL -framework Cocoa
+BUILD      := build
+CXXSTD     := -O2 -std=c++14 -Wall -Wno-deprecated-declarations
+
+BUGGY_GFX  := $(BUILD)/buggy_ramp
+BUGGY_HEAD := $(BUILD)/buggy_ramp_headless
+
+.PHONY: all run run-stack run-ragdoll run-buggy verify-buggy buggy clean check
+
+all: $(TARGETS) buggy
+
+# -x c forces each .c file to compile as C while still using the c++ driver,
+# which links the C++ runtime (libc++) that libode depends on. We pass NO
+# precision flag: <ode/precision.h> already matches the installed library.
+%: %.c
+	$(CXX) -O2 -Wall -Wextra $(ODE_CFLAGS) -x c -o $@ $< $(ODE_LIBS)
+
+# --------------------------- the buggy demo ------------------------------
+buggy: $(BUGGY_GFX) $(BUGGY_HEAD)
+
+$(BUILD):
+	mkdir -p $(BUILD)
+
+# vendored DrawStuff core (unmodified upstream ODE 0.16.6)
+$(BUILD)/drawstuff.o: $(DS_DIR)/src/drawstuff.cpp | $(BUILD)
+	$(CXX) $(CXXSTD) $(ODE_CFLAGS) $(DS_INC) $(DS_SRCINC) $(DS_CFGINC) -c $< -o $@
+
+# our native GLUT windowing backend (replaces the removed Carbon/AGL osx.cpp)
+$(BUILD)/glut_backend.o: $(DS_DIR)/src/glut_backend.cpp | $(BUILD)
+	$(CXX) $(CXXSTD) $(ODE_CFLAGS) $(DS_INC) $(DS_SRCINC) -c $< -o $@
+
+# interactive DrawStuff/GLUT window
+$(BUGGY_GFX): src/buggy_ramp.cpp $(BUILD)/drawstuff.o $(BUILD)/glut_backend.o | $(BUILD)
+	$(CXX) $(CXXSTD) $(ODE_CFLAGS) $(DS_INC) \
+	  -DDRAWSTUFF_TEXTURE_PATH='"$(TEX_PATH)"' \
+	  src/buggy_ramp.cpp $(BUILD)/drawstuff.o $(BUILD)/glut_backend.o \
+	  $(ODE_LIBS) $(FRAMEWORKS) -o $@
+
+# headless verifier: same physics, no renderer, prints PASS/FAIL self-checks
+$(BUGGY_HEAD): src/buggy_ramp.cpp | $(BUILD)
+	$(CXX) $(CXXSTD) $(ODE_CFLAGS) -DHEADLESS \
+	  src/buggy_ramp.cpp $(ODE_LIBS) -o $@
+
+# ------------------------------- run -------------------------------------
+run: run-ragdoll
+run-stack:    falling_stack ; ./falling_stack
+run-ragdoll:  ragdoll       ; ./ragdoll
+run-buggy:    $(BUGGY_GFX)  ; ./$(BUGGY_GFX)
+verify-buggy: $(BUGGY_HEAD) ; ./$(BUGGY_HEAD)
+
+# Print the ODE the build will link against (handy precision/version check).
+check:
+	@echo "ode version : $$(ode-config --version 2>/dev/null || pkg-config --modversion ode)"
+	@echo "ode cflags  : $(ODE_CFLAGS)"
+	@echo "ode libs    : $(ODE_LIBS)"
+
+clean:
+	rm -f $(TARGETS)
+	rm -rf $(BUILD)

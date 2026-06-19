@@ -60,6 +60,6 @@ Operating guidance for agents writing Open Dynamics Engine (ODE) code or extendi
 - Every new rule carries a `file:line` cite or a literal `[VERIFY]` marker — cites are **0.16-repo
   approximate**; re-grep the installed header for an exact line. No uncited assertions.
 - Add a routing-table row in `SKILL.md` for every new reference file; never leave a phantom row.
-- **Verify the skill itself** before publishing: `sh scripts/verify-build.sh` builds + runs every shipped
-  example against your installed ODE and reports citation drift — the reproducible form of the
-  "all examples build and run" claim, and the gate that catches regressions.
+- **Verify the skill itself** before publishing: `python3 scripts/verify-build.py` builds + runs every
+  shipped example against your installed ODE (`ode-config` or `pkg-config`) and reports citation drift — the
+  reproducible form of the "all examples build and run" claim, and the gate that catches regressions.

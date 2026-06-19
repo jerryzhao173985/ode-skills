@@ -68,6 +68,9 @@ ODE is **two independent subsystems you compose**, not one monolith:
 4. **Write → build (`c++` + `ode-config`) → run → FALSIFY** — inject a bug and confirm the check flips to FAIL.
 5. **Harden** (library / long-lived objects): move-only RAII, a `g_ode_alive` destructor guard, a final
    `-Wall -Wextra` clean build, and an ASan/UBSan run.
+6. **Review in a SEPARATE context — don't self-approve.** Hand a read-only reviewer the *claim + the headers*
+   (never your own reasoning); it catches the harness bug you can't see — a tautological check, a falsification
+   that passes on a confound. Load-bearing, not ceremony (`references/foundations/research-and-diagnosis.md`).
 
 Calibrate any unknown sign/axis/coordinate convention with a tiny isolated **probe**, not memory; and never
 ship a causal/mechanism claim you have not grepped in the installed header.
@@ -134,6 +137,7 @@ Cited: `dInitODE2` `odeinit.h:119`; `dWorldCreate` `objects.h:52`; `dHashSpaceCr
 | A **gearbox** / coupled rotation | `components/joint-transmission.md` |
 | **Many bodies / multi-core** | `threading.md` · `foundations/stepping-and-stability.md` |
 | **Anything — prove it works** | `foundations/verifying-simulations.md` · `rendering-and-headless.md` |
+| **Debug a misbehaving sim / optimize / research** | `foundations/research-and-diagnosis.md` · `foundations/stepping-and-stability.md` |
 
 ### Start here (build/run — the most-needed, previously-missing layer)
 | Working on… | Load |
@@ -157,6 +161,7 @@ Cited: `dInitODE2` `odeinit.h:119`; `dWorldCreate` `objects.h:52`; `dHashSpaceCr
 | Wrong scale, things float/sink wrong — units & mass | `references/foundations/units-and-scaling.md` |
 | Wrong axis / orientation / quaternion | `references/foundations/coordinate-frames.md` |
 | Proving a sim is correct (not just that it ran) | `references/foundations/verifying-simulations.md` |
+| Measuring / diagnosing / researching — bottleneck, ablation, the review pass | `references/foundations/research-and-diagnosis.md` |
 | Known ODE quirks / limitations | `references/foundations/known-issues.md` |
 
 ### Core API

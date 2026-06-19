@@ -30,6 +30,8 @@ Operating guidance for agents writing Open Dynamics Engine (ODE) code or extendi
    See `references/building-and-running.md`.
 9. **Default to headless self-checking** — drawstuff is optional and not shipped by Homebrew.
    See `references/rendering-and-headless.md`.
+10. **Integrate, don't clobber.** `ls`/Read the target dir first; if a Makefile/README/sibling demo exists,
+    read it and MATCH its build convention before adding files — never overwrite project files you didn't create.
 
 ## Verifying generated ODE code
 - It must compile+link with `c++ $(ode-config --cflags --libs)` (no hand-defined precision macro) — and
@@ -43,6 +45,9 @@ Operating guidance for agents writing Open Dynamics Engine (ODE) code or extendi
 - Run the SKILL.md "Final checks" lifecycle/ordering list.
 - Prefer lifting a pattern from a real demo (`references/demos-index.md` maps all 39) over writing from
   memory; the `references/examples/*.md` walkthroughs are verbatim, cited starting points.
+- **Get a separate-context review — don't self-approve.** After self-checking, have a read-only reviewer
+  recompute from the claim + the headers (never your reasoning); it catches harness bugs you can't see — a
+  tautological check, a falsification that passes on a confound (`references/foundations/research-and-diagnosis.md` §4).
 
 ## Extending this skill
 - Keep the `references/` layout: `foundations/mental-model.md` (read-first) · core API · other `foundations/`

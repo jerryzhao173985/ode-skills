@@ -5,10 +5,9 @@ spheres, one **hinge2** joint per wheel (steering/suspension on axis1, rolling o
 soft springy suspension, front-wheel drive with a proportional steering servo, and a
 tilted ground-box ramp. The drawstuff renderer is gone; in its place is an **autopilot**
 that cruises the buggy at the ramp and a **headless self-check** that traces the chassis
-trajectory and grades the run with six objective PASS/FAIL checks. It is a real,
-field-tested, self-checking C++ program — it builds with `ode-config`, runs with no
-window/GL/textures, prints a trace, and returns its verdict as the process exit code.
-The shipped asset is `assets/demo_buggy.cpp`.
+trajectory and grades the run with six objective PASS/FAIL checks. It builds with
+`ode-config`, runs with no window/GL/textures, prints a trace, and returns its verdict as
+the process exit code. The shipped asset is `assets/demo_buggy.cpp`.
 
 ## What it demonstrates
 - **The hinge2 vehicle idiom**: one `dJointCreateHinge2` per wheel, attached chassis→wheel, with axis1 = steering/suspension and axis2 = rolling — the standard ODE car suspension joint (`assets/demo_buggy.cpp:174-180`; `include/ode/objects.h:1725`).

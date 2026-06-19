@@ -2,8 +2,7 @@
 
 > The toolchain reality, not just the API. Every fact here was confirmed by building real programs
 > against an installed ODE (Homebrew 0.16.6) — see `assets/Makefile.example`, `assets/headless_example.c`.
-> **This is the page agents most often needed and the skill previously lacked.** Read it before you
-> write a build command.
+> Read it before you write a build command.
 
 ## 1. Find the installed ODE — don't rebuild it
 

@@ -239,7 +239,7 @@ printf("RESULT: %s\n", ok ? "PASS" : "FAIL");
 return ok ? 0 : 1;
 ```
 
-The **joint-integrity** check is clever: `hingeSeparation()` reads both hinge anchor read-backs
+The **joint-integrity** check: `hingeSeparation()` reads both hinge anchor read-backs
 (`dJointGetHingeAnchor` / `dJointGetHingeAnchor2`) and measures their distance — these coincide only
 while the constraint is satisfied, so a growing gap signals a stretched/blown joint
 (`assets/arm6dof.cpp:165-171`; `dJointGetHingeAnchor2` doc at `objects.h:2587`).

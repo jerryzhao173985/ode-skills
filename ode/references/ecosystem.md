@@ -295,17 +295,8 @@ behavioral guidance, not new symbols.
 - `dWorldStep` on a large scene can overflow the (small Windows) stack — increase
   stack size or switch to `dWorldQuickStep`. Cite: `https://ode.org/wiki/index.php/Manual`.
 
-**Names that are NOT current API (never invent — from `web-best-practices.json` never_invent)**
-- `dWorldStepFast1` — removed; use `dWorldQuickStep` (+ `dWorldSetQuickStepNumIterations`).
-- `dRayCreate` — not a symbol; the constructor is `dCreateRay(space, length)`
-  (`include/ode/collision.h:1066`).
-- `dCreateCCylinder` / "capped cylinder" — legacy; prefer `dCreateCapsule`
-  (`dCreateCCylinder` only compiles via `#define dCreateCCylinder dCreateCapsule`
-  at `include/ode/collision.h:1056`).
-- `dInitODE` — documented obsolete (`include/ode/odeinit.h:83`); use
-  `dInitODE2(0)` (paired with `dCloseODE`).
-- `dContactGeom` is the `.geom` member of `dContact`, not a separately allocated
-  object; pass `&contact[0].geom` with stride `sizeof(dContact)` to `dCollide`.
+**Names that are NOT current API** — `dWorldStepFast1`, `dRayCreate`, `dCreateCCylinder`, `dInitODE` are removed/renamed; web tutorials still use them, and their modern replacements + cites are owned by `references/version-and-changelog.md` (the single deprecation-list owner).
+Reminder: `dContactGeom` is the `.geom` member of `dContact`, not a separate object — pass `&contact[0].geom` with stride `sizeof(dContact)` (see `references/collision-and-contacts.md`).
 
 > Note (from `web-best-practices.json` verify): several Gazebo knobs (kp, kd,
 > `contact_max_correcting_vel`, friction-pyramid params) belong to Gazebo's ODE

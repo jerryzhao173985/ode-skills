@@ -46,4 +46,4 @@ World `ERP=0.5`, `CFM=0.001`, gravity `(0,0,-1)`; the demo substeps 10× per fra
 - Attach with body2 = `0` (the world); a real second body changes the semantics.
 
 ## See also
-`references/joints.md` (Plane2D + `dParam*`), `references/joints.md`, `references/foundations/erp-cfm-friction.md`.
+`references/joints.md` (Plane2D + `dParam*`), `references/foundations/erp-cfm-friction.md`.

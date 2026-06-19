@@ -25,7 +25,7 @@ A terrain geom whose heights come from a user callback `dReal f(void*, int x, in
 | 711 | `dGeomHeightfieldDataDestroy` | **app owns** the data — free it after geom/space teardown |
 
 ## Patterns to copy
-- **Build pipeline:** `…DataCreate` → `…BuildCallback`/`BuildByte/Short/Single` → `…DataSetBounds` → `dCreateHeightfield`. Keep the data object alive for the geom's lifetime; destroy it yourself.
+- **Build pipeline:** `…DataCreate` → `…BuildCallback`/`BuildByte/Short/Single` → `…DataSetBounds` → `dCreateHeightfield`.
 - **Reorient:** ODE authors a heightfield in X-Z with height along +Y — rotate 90° about X for a Z-up world.
 - **Render terrain yourself:** drawstuff has no heightfield primitive; re-sample the same callback and emit `dsDrawTriangle` per cell.
 

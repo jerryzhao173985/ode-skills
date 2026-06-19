@@ -13,7 +13,7 @@
 
 ## When to use
 
-Read this when you must **configure, compile, or link** ODE — choosing precision, picking a trimesh backend, enabling libccd for cylinder/convex collisions, turning on threading (`ou`/TLS), deciding shared vs static, or wiring `pkg-config`/`find_package(ODE)` into a consumer. Also read it to understand what OPCODE/GIMPACT/libccd/ou are and the user-facing implications of each.
+Read this when you must **configure, compile, or link** ODE — choosing precision, picking a trimesh backend, enabling libccd for cylinder/convex collisions, turning on threading (`ou`/TLS), deciding shared vs static, wiring `pkg-config`/`find_package(ODE)` into a consumer, or understanding what OPCODE/GIMPACT/libccd/ou are.
 
 ## Public API (C)
 

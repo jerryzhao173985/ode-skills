@@ -7,8 +7,8 @@ front wheel, a per-car sub-space that prevents self-collision, and a friction
 `nearCallback` tuned for tires on ground.
 
 Everything below is excerpted verbatim from
-`ode/demo/demo_buggy.cpp` and cited to the exact line range. Read it top to
-bottom; the "What to copy" section at the end distills the reusable recipe.
+`ode/demo/demo_buggy.cpp` and cited to the exact line range. The "What to copy"
+section at the end distills the reusable recipe.
 
 ---
 
@@ -120,7 +120,7 @@ dBodySetPosition (body[2],-0.5*LENGTH, WIDTH*0.5,STARTZ-HEIGHT*0.5);
 dBodySetPosition (body[3],-0.5*LENGTH,-WIDTH*0.5,STARTZ-HEIGHT*0.5);
 ```
 
-Two subtleties worth internalizing:
+Two subtleties:
 
 - **The collision shape is a sphere, even though the wheel is drawn as a
   cylinder.** `dMassSetSphere` + `dCreateSphere` give each wheel a sphere
@@ -153,7 +153,7 @@ for (i=0; i<3; i++) {
 }
 ```
 
-Read this carefully — the conventions are exactly what you copy:
+The conventions are exactly what you copy:
 
 - **Attach order is chassis-then-wheel:** `dJointAttach(joint,body[0],body[i+1])`.
 - **The anchor is the wheel's own center**, read straight from

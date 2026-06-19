@@ -83,8 +83,7 @@ arm64 macOS. So to render on a Mac you must:
    -framework Cocoa`, and set `config.h` to a single `#define HAVE_APPLE_OPENGL_FRAMEWORK`.
 
 `assets/glut_backend.cpp` is a complete, working ~280-line GLUT backend you can drop in; `assets/Makefile.example`
-shows the exact compile (vendored `drawstuff.o` + `glut_backend.o` + your `.cpp` + frameworks). This recipe
-took an agent a full reverse-engineering pass to derive — **start from the asset.**
+shows the exact compile (vendored `drawstuff.o` + `glut_backend.o` + your `.cpp` + frameworks). **Start from the asset.**
 
 ## When to render vs not
 - **Building, testing, CI, agent-driven work →** headless + self-check (§1). Always your first move.

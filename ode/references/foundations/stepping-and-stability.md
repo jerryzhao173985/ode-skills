@@ -1,9 +1,9 @@
 # Stepping and stability
 
-This is the tuning layer of ODE: how you advance time, which stepper you pick, and the
-handful of global knobs (ERP, CFM, iteration count, auto-disable) that decide whether a
-simulation rests quietly or jitters and explodes. Defaults below are quoted from the
-in-repo headers and the official wiki; do not substitute other numbers.
+How you advance time, which stepper you pick, and the global knobs (ERP, CFM, iteration
+count, auto-disable) that decide whether a simulation rests or jitters and explodes.
+Defaults below are quoted from the in-repo headers and the official wiki; do not
+substitute other numbers.
 
 ## Fixed timestep
 

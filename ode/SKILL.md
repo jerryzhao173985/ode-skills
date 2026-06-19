@@ -23,6 +23,11 @@ joints, contact with friction, and built-in collision detection"* (`README.md:9-
 **The public C API headers in `include/ode/*.h` are canonical truth.** Every rule cites a real `file:line`.
 The wiki and web tutorials lose to the headers on conflict (they reference removed APIs). **Do not invent
 functions, params, enums, or surface fields — if `include/ode/*.h` does not declare it, it does not exist.**
+> **Cites are 0.16-repo line numbers — trust the SYMBOL, treat the line as approximate.** Your installed ODE
+> (e.g. Homebrew 0.16.6) drifts ~⅓ of the line numbers, and the two versions differ **bidirectionally**: a few
+> APIs are repo-only (the QuickStep dynamic-iteration setters), a few are 0.16.6-only (the
+> `dWorldSetSteppingThreadingParameters` threading struct). Re-grep your installed header for an exact line, or
+> run `python3 scripts/check-citations.py` to see exactly what differs in YOUR install.
 
 > **"C++ ODE" in practice = the C API written in a `.cpp`, built with the `c++` driver.** That is what every
 > real ODE program here does; the `odecpp.h` wrapper is optional sugar (`references/cpp-api.md`). The C++

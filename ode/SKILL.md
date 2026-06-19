@@ -153,6 +153,7 @@ Cited: `dInitODE2` `odeinit.h:119`; `dWorldCreate` `objects.h:52`; `dHashSpaceCr
 | The tunable physics parameters (gravity/ERP/CFM/friction/damping/auto-disable) | **`references/tokens.md`** |
 | A ready recipe for a common scene (vehicle, stack, ragdoll, …) | `references/foundations/recipes.md` |
 | Writing idiomatic C++ — the nearCallback fn-ptr rule, RAII, std::vector, controllers | `references/cpp-patterns.md` |
+| Building a multi-body articulated **robot** — parts+joints+motors, composite bodies, the real near-callback | `references/building-robots.md` |
 | Verifying a sim actually works (not just "it ran") — energy / two-phase / falsification | `references/foundations/verifying-simulations.md` |
 | Pre-flight checklist — the classic ODE bugs | `references/pitfalls.md` |
 

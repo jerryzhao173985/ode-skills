@@ -83,6 +83,7 @@
 - `dSpaceCollide`/`dSpaceCollide2` may report close-but-non-intersecting pairs, so `dCollide` can return 0 for a pair the callback received — always check `n > 0` before building joints (include/ode/collision.h:812).
 - `CONTACTS_UNIMPORTANT` (`0x80000000`) may be OR'd into the `dCollide` flags to skip contact refining and just generate any contacts; all bits other than the low 16 (count) and this must be zero (include/ode/collision.h:743).
 - Filter unwanted pairs inside the callback: e.g. skip pairs whose bodies are already connected by a joint via `if (b1 && b2 && dAreConnectedExcluding(b1,b2,dJointTypeContact)) return;` (ode/demo/demo_boxstack.cpp:140).
+- **Per-geom materials / owner recovery:** store the owning object on each geom with `dGeomSetData(geom, owner)` (`include/ode/collision.h:75`) and recover it in the callback with `dGeomGetData` — this is how real frameworks choose per-geom surface params (friction/bounce/material) and filter collisions, rather than one global surface. For a **multi-body robot** with nested sub-spaces, recurse with `dSpaceCollide2` and scale these patterns up — see `references/building-robots.md` §7.
 
 ## Pattern: per-material contacts (how real robot simulators do it)
 

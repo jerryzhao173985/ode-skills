@@ -51,6 +51,7 @@ dJointSetUniversalAxis2 (joint, 1, -1, -1.41421356);
 - Setting only the base `dParam*` constant addresses **axis1 only**; use the suffixed `...2` form (or `+ dParamGroup`) for axis2 (`include/ode/objects.h:1678`, mistakes block).
 - A motor on either axis does nothing unless that axis's `dParamFMax` is positive (`include/ode/common.h:446`).
 - Forgetting `dJointAttach` leaves the joint inert (`include/ode/objects.h:1688`); 0 for a body anchors to the static environment (`include/ode/objects.h:1866`).
+- **The two axes must be linearly independent — parallel axes ABORT ODE.** A universal joint derives its frame from the two axes; parallel (or near-parallel) axes are degenerate — their cross product is zero-length and trips ODE's zero-length-vector normalize, which **aborts the process** (the `dNormalize3`/`dRFrom2Axes` zero-length path — `references/math-and-rotation.md`). Keep them well separated (perpendicular is ideal) and **guard user-supplied axes before creating the joint**. (Field-verified: a Universal/Hinge2 built with parallel axes hard-aborts, exit 134.)
 
 ## Never invent
 

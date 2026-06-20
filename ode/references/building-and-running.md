@@ -60,6 +60,14 @@ if (!dCheckConfiguration("ODE_double_precision"))   /* common.h:573, dGetConfigu
     { fprintf(stderr, "ODE precision mismatch\n"); return 1; }
 ```
 
+Pair it with a **compile-time** guard — it catches a wrong-precision *translation unit* before the program
+ever runs, whereas `dCheckConfiguration` above catches a wrong *library* at runtime (the field's
+self-checking demos use both):
+```cpp
+static_assert(sizeof(dReal) == sizeof(double), "this TU was built with the wrong precision macro");
+```
+(`dReal` is `double` on a Homebrew build; use `sizeof(float)` for a single-precision target.)
+
 If you build for double, the **drawstuff** draw calls need the `*D` variants — route them:
 ```c
 #ifdef dDOUBLE

@@ -63,6 +63,14 @@ performs per step. The default is `dWORLDQUICKSTEP_ITERATION_COUNT_DEFAULT`, whi
 **20**. More iterations give a more accurate solution but take longer to compute — and
 won't rescue a truly near-singular system. (`include/ode/objects.h:451`, `462`)
 
+**Stack instability scales with HEIGHT, not mass.** The SOR sweep propagates the supporting
+contact force roughly *one contact-row per iteration*, so a *tall* stack starves the iteration
+budget where a merely *heavy* one does not: field-measured, an 8-box stack jitters identically at
+per-box mass 5 vs 50 kg, while at the default 20 iterations a 20-box stack collapses outright. The
+lever is **iteration count** (or switch to `dWorldStep`), not lighter bodies — and the visible
+"sink" is usually inter-box *compression* (the top descends), not the bottom box dropping through
+the floor. (Field-verified against ODE 0.16.6.)
+
 ## Tuning ERP and CFM for stability
 
 For the *definitions*, ranges/defaults, and the spring-damper derivation

@@ -40,6 +40,7 @@ rather than assume it matches GLM/Bullet/your textbook.
   check **differential** — change exactly ONE variable and require the **difference** (loaded vs gravity-only
   vs controlled), not an absolute threshold. Then **prove the check bites**: perturb the input and confirm
   the check flips to FAIL. *A fix that doesn't restore falsifiability is theater.*
+- **One invariant can be BLIND to a whole bug class — pick checks with DISJOINT blind spots.** A bug that *preserves* the quantity you assert is invisible to that assertion. *Field example (double pendulum):* flipping the gravity sign still conserves total energy exactly, so an energy-drift check PASSES the bug — only a check whose blind spot is disjoint (here the analytic normal-mode frequency, or "does the bob settle below where it started") catches it. This differs from the independent-oracle rule below: that guards against a verifier sharing *code/context*; this guards against the *metrics themselves* sharing a blind spot. Use ≥2 checks whose failure modes do not coincide.
 
 ## 4. Determinism — same seed + fixed DT + same build ⇒ same trajectory
 ODE is deterministic under a fixed step. Run the headless sim twice and compare final body positions to a

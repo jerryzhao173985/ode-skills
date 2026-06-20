@@ -64,14 +64,19 @@ Practical conceptual notes:
   ignored. Cite: `include/ode/contact.h:45` (flag), `include/ode/contact.h:62-64`
   (fields).
 - SURFACE-MOTION SIGN IS o1/o2-ORDER DEPENDENT — `surface.motion1` /
-  `surface.motion2` (a conveyor-belt target surface velocity, read when
-  `dContactMotion1` `0x020` / `dContactMotion2` `0x040` is set) is signed relative
-  to geom2-vs-geom1, so it FLIPS with the broadphase `o1`/`o2` order that
-  `nearCallback` receives. The broadphase does not guarantee which geom is `o1`;
-  normalize on which geom is the belt (swap the sign, or use
-  `dContactFDir1`/`fdir1`, based on a geom identity check) — a first run can drive
-  objects UPSTREAM. Cite (flags + fields): `include/ode/contact.h:40-41, 69`; the
-  order-dependent sign flip is observed/empirical (header-silent).
+  `surface.motion2` / `surface.motionN` (conveyor/belt target surface velocities,
+  read when `dContactMotion1` `0x020` / `dContactMotion2` `0x040` / `dContactMotionN`
+  `0x080` is set) are signed relative to geom2-vs-geom1, so they FLIP with the
+  broadphase `o1`/`o2` order that `nearCallback` receives (which geom is `o1` is not
+  guaranteed). The precise rule (NOT a blanket sign swap): when the belt is
+  `contact.geom.g1`, negate `motionN` and `motion2` but **NOT** `motion1` — `fdir1` is
+  an author-chosen vector, so its component keeps the sign you set. Recipe for motion in
+  any direction: `dPlaneSpace(contact.geom.normal, d1, d2)`; `fdir1 = d1`;
+  `motion1 = dot(vel,d1)`; `motion2 = inv*dot(vel,d2)`; `motionN = inv*dot(vel,normal)`,
+  with `inv = -1` only when `g1` is the belt — otherwise a first run can drive objects
+  UPSTREAM. Cite (flags + fields): `include/ode/contact.h:40-41, 69`; the sign rule and
+  the projection recipe are documented in `ode/demo/demo_motion.cpp:142-143, 154-165`
+  (it is NOT header-silent). `dPlaneSpace`: `references/math-and-rotation.md`.
 
 ---
 

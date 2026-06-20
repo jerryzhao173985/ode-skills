@@ -216,7 +216,7 @@ dJointSetFeedback (hinges[i], jfeedbacks+i);
 
 | Name | Value | Source | Purpose |
 |---|---|---|---|
-| `dParamGroup` | `0x100` | include/ode/common.h:494 | Stride; add multiples (or use 1/2/3-suffixed names) to address 2nd/3rd-axis params, e.g. `dParamVel2`, and `(dParamGroup2 | dParamFMax) == dParamFMax2`. |
+| `dParamGroup` | `0x100` | include/ode/common.h:494 | Stride; add multiples (or use 1/2/3-suffixed names) to address 2nd/3rd-axis params, e.g. `dParamVel2`, and `(dParamGroup2 \| dParamFMax) == dParamFMax2`. |
 
 ### AMotor modes — passed to `dJointSetAMotorMode`
 

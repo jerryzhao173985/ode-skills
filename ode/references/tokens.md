@@ -10,13 +10,13 @@
 | **ERP** | `0.2` | `0.1–0.8`; avoid 0 (drift) and 1 (unstable) | `dWorldSetERP` | `objects.h:110` |
 | **CFM** | `1e-5` single / `1e-10` double | `1e-9 … 1`; never negative | `dWorldSetCFM` | `objects.h:127` |
 | QuickStep iterations | `20` (`dWORLDQUICKSTEP_ITERATION_COUNT_DEFAULT`) | raise for accuracy on big systems | `dWorldSetQuickStepNumIterations` | `objects.h:462` (default `:451`) |
-| QuickStep over-relaxation `W` | (default lives in `ode/src`, not the header; ~1.3 per the manual) [VERIFY] | tuning knob for the iterative solver | `dWorldSetQuickStepW` | `objects.h:584` |
+| QuickStep over-relaxation `W` | `1.3` | SOR over-relaxation factor (`>1` over-relaxes for faster convergence) | `dWorldSetQuickStepW` | `objects.h:584` (default `ode/src/objects.cpp:83`) |
 | Contact max correcting velocity | `dInfinity` | lower it to stop deep objects "popping" | `dWorldSetContactMaxCorrectingVel` | `objects.h:603` |
 | Contact surface layer | `0` | `~0.001` reduces resting jitter | `dWorldSetContactSurfaceLayer` | `objects.h:623` |
 | Linear damping (scale) | `0` | `[0,1]` | `dWorldSetLinearDamping` | `objects.h:826` |
 | Angular damping (scale) | `0` | `[0,1]` | `dWorldSetAngularDamping` | `objects.h:840` |
-| Linear damping threshold | — | speed below which damping is skipped | `dWorldSetLinearDampingThreshold` | `objects.h:798` |
-| Angular damping threshold | — | as above (angular) | `dWorldSetAngularDampingThreshold` | `objects.h:812` |
+| Linear damping threshold | `0.01` | speed below which damping is skipped | `dWorldSetLinearDampingThreshold` | `objects.h:798` |
+| Angular damping threshold | `0.01` | as above (angular) | `dWorldSetAngularDampingThreshold` | `objects.h:812` |
 | Max angular speed | `dInfinity` | clamp (keep `<500` if gyroscopic term on) | `dWorldSetMaxAngularSpeed` | `objects.h:865` |
 | Auto-disable flag | `false` (off) | enable so resting bodies sleep | `dWorldSetAutoDisableFlag` | `objects.h:748` |
 | Auto-disable linear threshold | `0.01` | idle linear-speed cutoff | `dWorldSetAutoDisableLinearThreshold` | `objects.h:677` |

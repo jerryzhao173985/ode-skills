@@ -67,7 +67,7 @@
 | dSetCrossMatrixMinus | `void dSetCrossMatrixMinus(dReal *res, const dReal *a, unsigned skip)` | include/ode/odemath.h:288 | Write `-[a]x` so `res*b = b x a`. Assumes target pre-zeroed. |
 | dCalcVectorLength3 | `dReal dCalcVectorLength3(const dReal *a)` | include/ode/odemath.h:192 | Euclidean length `sqrt(a.a)`. = legacy `dLENGTH`. |
 | dCalcVectorLengthSquare3 | `dReal dCalcVectorLengthSquare3(const dReal *a)` | include/ode/odemath.h:197 | Squared length `a.a` (no sqrt). = legacy `dLENGTHSQUARED`. |
-| dCalcPointsDistance3 | `dReal dCalcPointsDistance3(const dReal *a, const dReal *b)` | include/ode/odemath.h:304 | `|a - b|`. = legacy `dDISTANCE`. |
+| dCalcPointsDistance3 | `dReal dCalcPointsDistance3(const dReal *a, const dReal *b)` | include/ode/odemath.h:304 | `\|a - b\|`. = legacy `dDISTANCE`. |
 | dCalcPointDepth3 | `dReal dCalcPointDepth3(const dReal *test_p, const dReal *plane_p, const dReal *plane_n)` | include/ode/odemath.h:202 | Signed plane depth `dot(plane_p - test_p, plane_n)`; positive = penetrating. |
 | dSafeNormalize3 | `int dSafeNormalize3(dVector3 a)` | include/ode/odemath.h:521 | Normalize to unit length, return success flag (0 on zero vec). Impl ode/src/odemath.cpp:37. |
 | dSafeNormalize4 | `int dSafeNormalize4(dVector4 a)` | include/ode/odemath.h:522 | Safe 4-vector normalize, return success. Impl ode/src/odemath.cpp:42. |

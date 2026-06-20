@@ -70,8 +70,10 @@ int main(int argc,char**argv){
 ## 3. Rendering on modern macOS — the gotcha
 
 **Homebrew's `libode` ships the physics library only — no drawstuff** (no header, no lib, no textures).
-And the stock macOS backend `drawstuff/src/osx.cpp` is dead: it uses 32-bit Carbon + AGL, removed from
-arm64 macOS. So to render on a Mac you must:
+ODE's stock macOS backend `drawstuff/src/osx.cpp` is actually **GLUT-based** — despite a stale `// Carbon+AGL`
+comment at the top (`osx.cpp:23`), the code includes `<OpenGL/gl.h>` + `<GLUT/glut.h>` and uses GLUT throughout
+(`osx.cpp:44-45`; verify: `grep -n include drawstuff/src/osx.cpp`). GLUT is *deprecated* on modern macOS (since
+10.9) but still ships and links, with deprecation warnings. So to render on a Mac you must:
 
 1. **Vendor drawstuff from the ODE source** (`third_party/drawstuff/`): the *core* `drawstuff.cpp` is
    platform-agnostic and used **unmodified** — it owns camera/lighting/textures and the `dsDraw*` calls.
@@ -84,6 +86,8 @@ arm64 macOS. So to render on a Mac you must:
 
 `assets/glut_backend.cpp` is a complete, working ~280-line GLUT backend you can drop in; `assets/Makefile.example`
 shows the exact compile (vendored `drawstuff.o` + `glut_backend.o` + your `.cpp` + frameworks). **Start from the asset.**
+(Since stock `osx.cpp` is itself GLUT, vendoring it directly is also an option — though, like the whole rendering
+path here, that's reasoned from the source, not field-tested on this machine; the asset is the more minimal route.)
 
 ## When to render vs not
 - **Building, testing, CI, agent-driven work →** headless + self-check (§1). Always your first move.

@@ -52,7 +52,7 @@ This index documents the demo *files*, not new C symbols (the demos only call sy
 | Demo | Teaches | Source |
 | --- | --- | --- |
 | demo_collision.cpp | Test harness for the low-level `dCollide` colliders: no args runs all collision tests on random data; a test number runs that one interactively (spacebar re-randomizes). Direct geom-pair collision testing. | ode/demo/demo_collision.cpp:23-28 |
-| demo_convex.cpp | Convex geometry: a pile of convex hulls (Halton point set, `dCreateConvex`) settling under gravity. Reference for building `dGeomConvex` from planes+points arrays. | ode/demo/demo_convex.cpp:23 |
+| demo_convex.cpp | Convex geometry: a pile of convex hulls (Halton point set, `dCreateConvex`) settling under gravity. Reference for building a convex geom (`dCreateConvex`) from planes+points arrays. | ode/demo/demo_convex.cpp:23 |
 | demo_cyl.cpp | The non-capped flat-ended cylinder geom (`dCreateCylinder`) rolling on a trimesh world. Cylinder collider vs trimesh. | ode/demo/demo_cyl.cpp:23 |
 | demo_cylvssphere.cpp | Focused test of the cylinder-vs-sphere collider: one cylinder body and one sphere body interacting. | ode/demo/demo_cylvssphere.cpp:23 |
 | demo_basket.cpp | Sphere-vs-trimesh collision: a basketball (`dCreateSphere`) bouncing inside a static triangle-mesh world; spacebar resets. Sphere/trimesh collider + loading a mesh from a `*_geom.h` header. | ode/demo/demo_basket.cpp:23-26 |

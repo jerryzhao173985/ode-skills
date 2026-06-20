@@ -37,9 +37,10 @@ simulation", …). Requires ODE installed (`brew install ode`; `ode-config` on `
 SKILL.md                         orchestrator: mental model · build/run · the canonical loop · routing · hard rules
 AGENTS.md                        operating guidance for agents writing/extending ODE code
 references/
-  foundations/                   mental-model (read-first) · stepping-and-stability · erp-cfm-friction ·
-                                 contacts-and-friction · units-and-scaling · coordinate-frames ·
-                                 verifying-simulations · recipes · known-issues
+  foundations/                   mental-model (read-first) · scope-and-limits (when ODE fits / what's validated) ·
+                                 stepping-and-stability · erp-cfm-friction · contacts-and-friction ·
+                                 units-and-scaling · coordinate-frames · verifying-simulations ·
+                                 research-and-diagnosis · recipes · known-issues
   building-and-running.md        ode-config, the c++-driver link, precision, the header-verify recipe
   rendering-and-headless.md      headless self-check harness · drawstuff · the macOS GLUT-backend recipe
   cpp-patterns.md                C-API-from-C++: fn-ptr callbacks, move-only RAII (+ teardown-order guard), controllers
@@ -50,6 +51,7 @@ references/
 assets/                          paste-ready Makefile + complete, tested, headless C/C++ programs
                                  (arm6dof, jenga, buggy_ramp, headless_example, probe_sign, glut_backend, …)
 scripts/check-citations.py       validate the skill's cites against YOUR installed ODE version
+scripts/verify-build.py          build + run every shipped example against YOUR installed ODE (the reproducible gate)
 ```
 
 ## The workflow it induces

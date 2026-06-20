@@ -148,6 +148,7 @@ Cited: `dInitODE2` `odeinit.h:119`; `dWorldCreate` `objects.h:52`; `dHashSpaceCr
 | Working on… | Load |
 |---|---|
 | **The mental model — two subsystems, the build decision tree, the build order** | **`references/foundations/mental-model.md`** |
+| **Is ODE the right tool? — scope, limits, when to pick MuJoCo/Bullet, what's validated** | **`references/foundations/scope-and-limits.md`** |
 | Compiling/linking, ode-config, the c++-driver requirement, precision | **`references/building-and-running.md`** |
 | Verifying with no window; the headless self-check harness; drawstuff; macOS rendering | **`references/rendering-and-headless.md`** |
 | The tunable physics parameters (gravity/ERP/CFM/friction/damping/auto-disable) | **`references/tokens.md`** |
@@ -169,6 +170,7 @@ Cited: `dInitODE2` `odeinit.h:119`; `dWorldCreate` `objects.h:52`; `dHashSpaceCr
 | Proving a sim is correct (not just that it ran) | `references/foundations/verifying-simulations.md` |
 | Measuring / diagnosing / researching — bottleneck, ablation, the review pass | `references/foundations/research-and-diagnosis.md` |
 | Known ODE quirks / limitations | `references/foundations/known-issues.md` |
+| Deciding whether ODE fits; alternatives; how far this skill is validated | `references/foundations/scope-and-limits.md` |
 
 ### Core API
 | Layer | Load |

@@ -63,20 +63,23 @@ Practical conceptual notes:
   enables them. Without the flag the `rho`/`rho2`/`rhoN` values are silently
   ignored. Cite: `include/ode/contact.h:45` (flag), `include/ode/contact.h:62-64`
   (fields).
-- SURFACE-MOTION SIGN IS o1/o2-ORDER DEPENDENT — `surface.motion1` /
-  `surface.motion2` / `surface.motionN` (conveyor/belt target surface velocities,
-  read when `dContactMotion1` `0x020` / `dContactMotion2` `0x040` / `dContactMotionN`
-  `0x080` is set) are signed relative to geom2-vs-geom1, so they FLIP with the
-  broadphase `o1`/`o2` order that `nearCallback` receives (which geom is `o1` is not
-  guaranteed). The precise rule (NOT a blanket sign swap): when the belt is
-  `contact.geom.g1`, negate `motionN` and `motion2` but **NOT** `motion1` — `fdir1` is
-  an author-chosen vector, so its component keeps the sign you set. Recipe for motion in
-  any direction: `dPlaneSpace(contact.geom.normal, d1, d2)`; `fdir1 = d1`;
-  `motion1 = dot(vel,d1)`; `motion2 = inv*dot(vel,d2)`; `motionN = inv*dot(vel,normal)`,
-  with `inv = -1` only when `g1` is the belt — otherwise a first run can drive objects
-  UPSTREAM. Cite (flags + fields): `include/ode/contact.h:40-41, 69`; the sign rule and
-  the projection recipe are documented in `ode/demo/demo_motion.cpp:142-143, 154-165`
-  (it is NOT header-silent). `dPlaneSpace`: `references/math-and-rotation.md`.
+- SURFACE-MOTION SIGN DEPENDS ON CONTACT BODY-POLARITY (not raw o1/o2 order) —
+  `surface.motion1` / `surface.motion2` / `surface.motionN` (conveyor/belt target surface
+  velocities, set with `dContactMotion1` `0x020` / `dContactMotion2` `0x040` /
+  `dContactMotionN` `0x080`) are projected onto ODE's contact frame. `motion1` is along
+  YOUR `fdir1`, so its sign is fixed by you and never flips; `motion2`/`motionN` are along
+  `fdir2 = normal × fdir1` and the `normal`, which ODE **negates** when the contact joint
+  is attached *reversed* — i.e. when one geom has **no body** (the `dJOINT_REVERSE` case):
+  `ode/src/joints/contact.cpp:162-163` negates the normal, `:222` builds `fdir2 = normal × fdir1`.
+  **Common case — a STATIC belt + dynamic objects:** the belt is body-less, so negate
+  `motionN` and `motion2` (NOT `motion1`); the demo's `inv = -1 if contact.geom.g1 == belt`
+  works only because the static belt lands in the body-less slot. Recipe (any direction):
+  `dPlaneSpace(contact.geom.normal, d1, d2)`; `fdir1 = d1`; `motion1 = dot(vel,d1)`;
+  `motion2 = inv*dot(vel,d2)`; `motionN = inv*dot(vel,normal)`. **If BOTH belt and object
+  are dynamic bodies the reversal is not set — re-derive the sign with a probe.** Cite:
+  flags/fields `include/ode/contact.h:40-42, 69`, normal-into-body1 `:81-84`; recipe +
+  comment `ode/demo/demo_motion.cpp:142-143, 154-165` (demo-documented; the header is
+  silent on the sign). `dPlaneSpace`: `references/math-and-rotation.md`.
 
 ---
 

@@ -52,8 +52,8 @@ ODE gives one body **one** inertia. For a part made of several shapes:
 - Offset geoms are **collision-only (massless)**. Build the body's `dMass` yourself: each shape's `dMass`,
   `dMassTranslate`/`dMassRotate` into place, `dMassAdd` them, **then `dMassTranslate(&m, -m.c[0], -m.c[1],
   -m.c[2])` so the combined centre of mass lands at the body origin** (ODE *requires* the CoM at the origin —
-  `references/foundations/coordinate-frames.md`), then `dBodySetMass` once. **Skipping the re-centre makes the
-  body jump/double-move when the mass is set** — a second offset part double-moves the body (field-verified).
+  `references/foundations/coordinate-frames.md`), then `dBodySetMass` once. **Skipping the re-centre makes `dBodySetMass` abort** ("The centre of mass must
+  be at the origin", `ode/src/ode.cpp:495`) — or, if assertions are disabled, the body silently jumps/double-moves instead.
   Skipping the mass build entirely leaves one shape's inertia and it tumbles wrong. *If incremental
   composition gets fragile, the robust alternative is one shape per body joined by `dJointCreateFixed` welds —
   what the field robot-engine settled on.*

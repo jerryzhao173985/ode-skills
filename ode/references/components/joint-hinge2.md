@@ -88,8 +88,8 @@ Deprecated (do not use in new code): `dJointSetHinge2Axis1` (include/ode/objects
   at **vehicle scale (~0.1–0.2 m), not sub-mm**; a truly failed joint diverges to metres. (Empirically
   established in the buggy demo; a sub-mm threshold false-positives on a working soft suspension.)
 - **axis1 and axis2 must be linearly independent — parallel axes ABORT ODE.** The hinge-2 builds its frame
-  from the two axes; parallel (steering ∥ rolling) axes give a zero-length cross product and trip ODE's
-  zero-length-normalize **abort** (`references/math-and-rotation.md`). Steering ⊥ rolling is the natural
+  by perpendicular-izing the second axis against the first; parallel (steering ∥ rolling) axes collapse it to
+  zero, ODE's safe-normalize fails, and it fires an internal **assert/abort** (`ode/src/joints/hinge2.cpp:238`). Steering ⊥ rolling is the natural
   choice; **guard user-supplied axes** before creating the joint. (Field-verified: parallel axes hard-abort, exit 134.)
 
 ## Never invent

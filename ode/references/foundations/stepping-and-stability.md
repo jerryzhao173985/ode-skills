@@ -115,7 +115,7 @@ pathologies — reach for these before abusing friction or ERP/CFM:
 
 ## A lone free-spinning body gains energy and explodes
 
-A *single* freely tumbling body with no contacts, joints, or applied forces can still speed up and blow up — distinct from the stacking/whip explosions above. ODE's integrator is first-order and integrates a free body's rotation **explicitly** (constraint forces are implicit); when the three principal moments of inertia are unequal the spin axis wobbles, the explicit error grows step-over-step, and energy accrues. **Particularly evident with long thin objects.** Fixes, in order:
+A *single* freely tumbling body with no contacts, joints, or applied forces can still speed up and blow up — distinct from the stacking explosions above. ODE's integrator is first-order and integrates a free body's rotation **explicitly** (constraint forces are implicit); when the three principal moments of inertia are unequal the spin axis wobbles, the explicit error grows step-over-step, and energy accrues. **Particularly evident with long thin objects.** Fixes, in order:
 
 - **Make freely-rotating bodies dynamically symmetric** — give the body an inertia tensor `≈ constant·identity` (it spins like a sphere) even while it still renders/collides as a long box: build the geom as usual but set the mass with `dMassSetSphere*`, or `dMassSetParameters` with `I11=I22=I33` and zero off-diagonals (`references/bodies-and-mass.md`). A body's *shape* and its *inertia* need not match — the non-obvious, most effective fix.
 - **Keep the spin slow / avoid large torques** — clamp `dWorldSetMaxAngularSpeed` (`references/tokens.md`); disabling the gyroscopic term also helps (`dBodySetGyroscopicMode`, `references/bodies-and-mass.md`).

@@ -1,4 +1,4 @@
-# Example: bouncing sphere — the smallest complete ODE program
+# Example: bouncing sphere — the smallest end-to-end ODE composition (illustrative, drawstuff-based)
 
 > Source: wiki **Simple Bouncing Sphere** (`ode.org/wiki/index.php/Simple_Bouncing_Sphere`), grounded against `include/ode/*.h`. The minimal end-to-end composition of *every* component class — the best first program to read.
 
@@ -9,6 +9,8 @@ A sphere dropped from height 3 onto a static plane; it bounces (restitution 0.9)
 **World** + **Space** + contact **JointGroup** + a static ground **Geom** (`dCreatePlane`, no body) + one **Body**+**Mass**+**Geom** sphere linked by `dGeomSetBody`. The whole `references/components/README.md` graph in one tiny program.
 
 ## The program (verbatim from the wiki, lightly annotated)
+
+> **Illustrative, not gate-built:** this wiki program renders with **drawstuff** (NOT part of an installed ODE — `references/rendering-and-headless.md`) and needs a `start()` callback, so it is **not** in the headless build gate. For the smallest *gated, build-verified* program see `assets/headless_example.c`.
 ```c
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>

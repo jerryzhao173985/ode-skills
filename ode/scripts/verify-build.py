@@ -44,6 +44,8 @@ EXAMPLES = [
     ("jenga.cpp",          ["-O2", "-std=c++17"]),
     ("demo_buggy.cpp",     ["-O2", "-std=c++17"]),
     ("probe_trimesh.cpp",  ["-O2", "-std=c++17"]),
+    ("probe_sign.cpp",     ["-O2", "-std=c++17"]),
+    ("probe_sign2.cpp",    ["-O2", "-std=c++17"]),
 ]
 print("Building + running the shipped example programs:")
 tmp = tempfile.mkdtemp(prefix="odeverify_")

@@ -171,6 +171,7 @@ Cited: `dInitODE2` `odeinit.h:119`; `dWorldCreate` `objects.h:52`; `dHashSpaceCr
 | Measuring / diagnosing / researching — bottleneck, ablation, the review pass | `references/foundations/research-and-diagnosis.md` |
 | Known ODE quirks / limitations | `references/foundations/known-issues.md` |
 | Deciding whether ODE fits; alternatives; how far this skill is validated | `references/foundations/scope-and-limits.md` |
+| Who uses ODE in production; RL / headless integration patterns; how to obtain it per platform | `references/real-world-usage.md` |
 
 ### Core API
 | Layer | Load |

@@ -71,6 +71,17 @@ lever is **iteration count** (or switch to `dWorldStep`), not lighter bodies —
 "sink" is usually inter-box *compression* (the top descends), not the bottom box dropping through
 the floor. (Field-verified against ODE 0.16.6.)
 
+## Making it faster (cost scales with DOFs removed)
+
+The wiki's cost model: per connected island, step cost ≈ `k1·O(joints) + k2·O(DOFs_removed³) + k2·O(bodies)`. The cubic dominates because `dWorldStep` factorizes a matrix with one row/column per removed DOF — that *is* the `m` in the `m³`/`m²` above. So the performance lever is **remove fewer DOFs**, not just fewer bodies (wiki, "Making things go faster"):
+
+- **Prefer cheap friction.** A frictionless or viscous-friction contact removes **1** DOF; a full-Coulomb contact (`dContactApprox1`, `contact.h:51`) removes **3** — 3× the constraint cost. Use the cheapest friction the physics tolerates.
+- **Use fewer joints**, and replace tiny bodies + their joints with **kinematic fakes** where realism allows (`references/foundations/units-and-scaling.md`).
+- **Substitute one specialized joint** for a multi-joint contraption (a real hinge vs two ball joints — which also removes a redundant-constraint singularity).
+- **Fewer contacts** (also helps the near-singular QuickStep case above).
+
+Per-joint DOF counts live in the component cards (ball removes 3, slider 5, dball 1). This is solver-internal wiki guidance, not a header API contract. (`https://ode.org/wiki/index.php/HOWTO_make_the_simulation_better`)
+
 ## Tuning ERP and CFM for stability
 
 For the *definitions*, ranges/defaults, and the spring-damper derivation
@@ -101,6 +112,17 @@ pathologies — reach for these before abusing friction or ERP/CFM:
 - **`dWorldSetContactMaxCorrectingVel(world, vel)`** — caps the velocity contacts may
   generate to push penetrating bodies apart. Default **infinity** (no limit). Reducing
   it prevents "popping" of deeply embedded objects. (`include/ode/objects.h:603`)
+
+## A lone free-spinning body gains energy and explodes
+
+A *single* freely tumbling body with no contacts, joints, or applied forces can still speed up and blow up — distinct from the stacking/whip explosions above. ODE's integrator is first-order and integrates a free body's rotation **explicitly** (constraint forces are implicit); when the three principal moments of inertia are unequal the spin axis wobbles, the explicit error grows step-over-step, and energy accrues. **Particularly evident with long thin objects.** Fixes, in order:
+
+- **Make freely-rotating bodies dynamically symmetric** — give the body an inertia tensor `≈ constant·identity` (it spins like a sphere) even while it still renders/collides as a long box: build the geom as usual but set the mass with `dMassSetSphere*`, or `dMassSetParameters` with `I11=I22=I33` and zero off-diagonals (`references/bodies-and-mass.md`). A body's *shape* and its *inertia* need not match — the non-obvious, most effective fix.
+- **Keep the spin slow / avoid large torques** — clamp `dWorldSetMaxAngularSpeed` (`references/tokens.md`); disabling the gyroscopic term also helps (`dBodySetGyroscopicMode`, `references/bodies-and-mass.md`).
+- **Add damping** (below) and avoid bouncy contacts that reflect energy back in.
+- **Smaller fixed step** helps only weakly — the integrator is still first-order.
+
+(FAQ <https://www.ode.org/wiki/index.php?title=FAQ> "My simple rotating bodies are unstable!")
 
 ## Damping
 

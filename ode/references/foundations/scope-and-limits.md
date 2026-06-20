@@ -25,8 +25,10 @@ It is the **wrong** tool for:
 
 - **Tunneling (no CCD).** A body moving faster than its own thickness per step passes through thin geometry.
   Mitigation: **substep** (run the stepper N× per frame at `dt/N`) or use a smaller fixed `dt`; thicken thin
-  walls; cap velocities. There is no continuous-collision fallback. *(Standard ODE practice, not a header feature;
-  see `references/foundations/stepping-and-stability.md`.)*
+  walls; cap velocities. There is no continuous-collision fallback. **And even *with* a sweep there is a hard
+  limit:** a linear sweep/substep does **not** stop a fast-*rotating* long body from tunnelling (a linear cast
+  rotates the body once at step start, before casting — Jolt's LinearCast docs); the residual fix is a smaller
+  `dt`. *(Standard ODE practice, not a header feature; see `references/foundations/stepping-and-stability.md`.)*
 - **High mass ratios** (a light part jointed to a heavy one, ≳10:1) are stiff and jitter/explode; soften with
   CFM, raise QuickStep iterations, or rescale masses closer together (`references/foundations/units-and-scaling.md`).
 - **Closed kinematic loops** (4-bar linkages, parallel mechanisms beyond a well-conditioned Stewart platform)

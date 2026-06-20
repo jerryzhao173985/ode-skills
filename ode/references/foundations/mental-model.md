@@ -19,6 +19,9 @@ The public headers split cleanly, and so should your mental model:
   joints**: per step you run `dCollide`, and for each contact you create a throwaway `dJointCreateContact`
   in the dynamics world.
 
+- **A one-question test for every new ODE fact: is it *dynamics*, *collision*, or *the bridge* (`dGeomSetBody`)?**
+  Every rule sits on one side or on the bridge; if you can't place it, you don't understand it yet.
+
 That's the whole architecture. Everything else is detail.
 
 **The six objects, one line each:** **world** (`dWorldID`) — the dynamics container (gravity/ERP/CFM), owns

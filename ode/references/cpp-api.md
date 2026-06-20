@@ -217,6 +217,7 @@ These are preprocessor macros that select the container base for each template; 
 - `dBody::destroy()` as a public method — `destroy()` is **protected** on the dynamics wrappers (only `dGeom` exposes a public `destroy()`).
 - `dJoint::detach()` — no such method; only `attach()` exists.
 - `dWorld::setStepSize()` / `dWorld::getStepSize()` — no such wrappers; stepsize is an argument to `step()`/`quickStep()`.
+- `dWorld::setContactMaxCorrectingVel()` — no wrapper; the C `dWorldSetContactMaxCorrectingVel` (`objects.h:603`) has no `odecpp.h` equivalent (the wrapper exposes only `setContactSurfaceLayer`, `odecpp.h:151`), so drop to the C call. A general reminder: not every C setter has a wrapper — grep `odecpp.h` before assuming one exists.
 - `dSpace::destroy()` as a distinct method — spaces are destroyed via the inherited `dGeom` destructor/`destroy()`.
 - `dContactJoint` default ctor with a `(world, group)` signature — the contact joint requires a `dContact*` and has no group-only ctor.
 - `dTriMesh` / `dHeightfield` wrapper classes — not present in odecpp_collision.h.

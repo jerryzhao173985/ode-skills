@@ -19,7 +19,7 @@
 - **Request enough contacts.** When a collider (e.g. GIMPACT) produces more contacts than your `flags` cap, ODE may trim the surplus **without sorting by depth/importance**, keeping effectively random contacts → penetration. Ask for enough, and be aware of the cap. ([#36])
 - **Trimesh↔trimesh skips the per-triangle callback** in some versions (callback wiring missing), so per-triangle filtering doesn't work for tri-tri pairs. ([#23])
 - **`dMassSetTrimesh` uses the world transform**, not the geom's local/offset frame — building mass from a trimesh placed away from the origin yields wrong inertia. ([#5])
-- **Capsule-vs-box returns a garbage normal on deep penetration.** When the capsule axis penetrates the box deeper than the capsule radius, the closest points coincide and `dCollideCapsuleBox` yields an undefined (non-unit / wrong-direction) `contact.geom.normal` → the body is kicked the wrong way. Avoid deep capsule-box interpenetration (smaller step / softer contact / cap relative velocity). (Production-patched: lpzrobots `ode_robots/ode_patches/ode-0.11_cap_box_colbug.patch`.)
+- **Capsule-vs-box returns a garbage normal on deep penetration.** When the capsule axis penetrates the box deeper than the capsule radius, the closest points coincide and `dCollideCapsuleBox` yields an undefined (non-unit / wrong-direction) `contact.geom.normal` → the body is kicked the wrong way. Avoid deep capsule-box interpenetration (smaller step / softer contact / cap relative velocity). (A known ODE bug — production users ship a source patch for it.)
 
 ## Floating-point exceptions hidden by default
 
@@ -31,7 +31,7 @@
 - **Hinge limits break near ±π.** Min/max limits are violated when the joint angle crosses ±π because the angle is clamped to [−π, π] without tracking rotation direction. Be careful setting hinge limits near ±π. ([#84])
 - **AMotor `dAMotorEuler` ignores swapped bodies.** In Euler mode the global-axis computation doesn't account for `dJOINT_REVERSE`, so you must manually swap the `rel` index passed to `dJointSetAMotorAxis` (unlike `dAMotorUser`, which handles it). ([#37])
 - **FAQ recipe — joint stops won't move?** Set hi, then lo, then hi again; an inconsistent stop where `hi < lo` is silently ignored. (FAQ)
-- **`dJointAddSliderForce` injects an unintended torque when the body COMs aren't on the slider axis.** It is a bare wrapper that applies equal-and-opposite `dBodyAddForce` to the two bodies (`objects.h:2020-2027`); if their centres of mass are offset from the axis, the force couple has a moment arm and adds spurious torque. Apply force at the joint anchor, or drive the joint with a motor (`dParamVel`/`dParamFMax`) instead. (Production-patched: lpzrobots `ode_robots/ode_patches/ode-0.5_slider_torques.patch`.)
+- **`dJointAddSliderForce` injects an unintended torque when the body COMs aren't on the slider axis.** It is a bare wrapper that applies equal-and-opposite `dBodyAddForce` to the two bodies (`objects.h:2020-2027`); if their centres of mass are offset from the axis, the force couple has a moment arm and adds spurious torque. Apply force at the joint anchor, or drive the joint with a motor (`dParamVel`/`dParamFMax`) instead. (A known ODE bug — production users ship a source patch for it.)
 
 ## Threading
 

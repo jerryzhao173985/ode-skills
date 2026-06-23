@@ -21,9 +21,9 @@
 
 ## Combining two materials (the production recipe)
 
-A material model exposes intuitive per-surface scalars (roughness, hardness `h`, elasticity `e`, slip) and
-combines the **two** contacting materials into `dSurfaceParameters` inside the near-callback. lpzrobots'
-`Substance` recipe (`lpzrobots/ode_robots/osg/substance.cpp:54-83`):
+A robust material model exposes intuitive per-surface scalars (roughness, hardness `h`, elasticity `e`, slip) and
+combines the **two** contacting materials into `dSurfaceParameters` inside the near-callback. A production
+material system maps these scalars onto ODE's surface params like so:
 ```
 mu       = roughness1 · roughness2                    // PRODUCT — NOT min(mu1,mu2) (that's a Bullet/PhysX convention)
 kp       = 100 · h1·h2 / (h1+h2)                      // hardnesses combine as springs in SERIES
@@ -34,15 +34,16 @@ mode  = dContactSoftERP | dContactSoftCFM | dContactApprox1   (+ dContactSlip1|d
 ```
 The `100`/`50` are empirical scale factors. A per-geom callback may also veto/override a contact via a
 3-value return: `0` = drop it (no `dJointCreateContact` — a non-colliding geom), `1` = fall through to the
-default combine, `2` = "I already wrote `surface`, use as-is" (`substance`/`simulation.cpp:1384-1398`).
+default combine, `2` = "I already wrote `surface`, use as-is" (field-experience callback convention).
 
-**Anisotropic friction (snake belly / tracks): build `fdir1` per contact, every step.** `fdir1` is not a
+**Anisotropic friction (elongated bellies / tracks / conveyor surfaces): build `fdir1` per contact, every step.** `fdir1` is not a
 fixed world vector — recompute `fdir1 = bodyLongAxis × contact.normal` (normalize; fall back to any tangent
 when the axis is ∥ the normal), set `mode |= dContactFDir1 | dContactMu2`. The **HIGH** coefficient `mu` rides
 on `fdir1` (the **cross-body** direction); the **LOW** `mu2 = mu·ratio` (ratio<1) is on direction 2
 (`= normal × fdir1`, **along** the body's travel axis) — so friction is **low along the body's motion, high
-across it** (a snake slides forward and grips sideways). (`substance.cpp:204,221`; the doc states "friction
-along the axis is ratio-fold of the other directions", `substance.h:107-114`.)
+across it** (an elongated body slides forward and grips sideways). The `fdir1`/`mu2` direction semantics are
+header-grounded (`contact.h:36,61,102`); making friction along the travel axis a ratio-fold of the
+cross-axis is generic field practice for belly-driven locomotion and tracked surfaces.
 
 ## The friction model
 

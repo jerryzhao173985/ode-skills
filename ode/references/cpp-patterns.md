@@ -53,15 +53,15 @@ handles in your containers and rely on `dWorldDestroy`/`dSpaceDestroy` for clean
 
 **The teardown-ORDER foot-gun (the #1 crash when wrapping ODE in C++).** Destroying ANY ODE handle *after*
 `dCloseODE()` (or after the owning `dWorldDestroy`) is **undefined behavior** — a segfault, not a clean
-error. With RAII this bites silently: if a wrapped `Body`/`Primitive` *outlives* whatever calls `dCloseODE`,
+error. With RAII this bites silently: if a wrapped `Body` (a wrapped handle) *outlives* whatever calls `dCloseODE`,
 its destructor runs `dBodyDestroy`/`dGeomDestroy` on torn-down state. Two safe shapes:
 - **Guarantee order** (self-contained program): make the `dCloseODE`/world owner *outlive* every wrapper —
   declare bodies/geoms after the world so they destruct first (reverse declaration order), or keep them in a
   container the world owner clears before `dCloseODE`.
 - **Guard for library code** (you can't control user object lifetime): keep a global "ODE is initialised"
   flag/refcount (set at `dInitODE2`, cleared at `dCloseODE`) and have every destructor **no-op when it's
-  clear** — `if (g_ode_alive && id) dGeomDestroy(id);`. Field-proven: a real lpzrobots-style engine
-  extraction added exactly this guard so a `Primitive` outliving its simulation stopped segfaulting.
+  clear** — `if (g_ode_alive && id) dGeomDestroy(id);`. Field-proven: a production ODE engine adds exactly
+  this guard so a wrapped body/geom outliving its simulation stopped segfaulting.
 
 ## 3. Collections: `std::vector<dBodyID>`
 
@@ -108,13 +108,13 @@ improved every metric 100–1000×. (To get true PD *damping* instead, drive the
 `dBodyAddForce`/`dJointAddHingeTorque` — where `-KD*pdot` is a real viscous term.)
 
 ### Reusable velocity servo (production refinements)
-Packaging a motorized joint as a position→velocity servo, the details that make it stable (lpzrobots
-`motors/oneaxisservo.cpp`):
+Packaging a motorized joint as a position→velocity servo, the details that make it stable (the joint is
+driven through `dParamVel`/`dParamFMax`, `include/ode/common.h:443,446`):
 - **One-step anti-overshoot clamp.** After computing the command velocity `v` toward `p_des`, cap it so it
   can't pass the target in one step: `if (dt*|v| > |p_des - p|) v = (p_des - p)/dt;`. Kills the residual
-  jitter a pure P-servo leaves at the setpoint (`oneaxisservo.cpp:142-159`).
+  jitter a pure P-servo leaves at the setpoint (field experience).
 - **The speed cap IS the gain.** `dParamVel` is clamped to `maxVel` with P-gain `≈ maxVel/2` — one knob sets
-  both proportional stiffness and top speed (`oneaxisservo.cpp:89`).
+  both proportional stiffness and top speed (field experience).
 - **Set hard joint stops ~30% OUTSIDE the servo's commanded travel** (`dParamLoStop`/`dParamHiStop`) so the
   servo never fights its own limit; a stop *inside* the commanded range makes motor and constraint oscillate.
 

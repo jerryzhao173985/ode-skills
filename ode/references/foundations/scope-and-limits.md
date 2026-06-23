@@ -9,7 +9,7 @@
 
 ODE is a mature, small, free **rigid-body** dynamics + collision library. It is the right tool for articulated
 **rigid** mechanisms — vehicles, robots, ragdolls, machines, stacking — when you want a dependency-light,
-hackable, CPU engine and you control the timestep (lpzrobots and many research sims chose it for exactly that).
+hackable, CPU engine and you control the timestep (research robotics simulators chose it for exactly that).
 It is the **wrong** tool for:
 
 | You need… | ODE has… | Reach for |

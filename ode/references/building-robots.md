@@ -2,9 +2,8 @@
 
 > A robot is **a bag of rigid PARTS (each a body+geom) + JOINTS connecting them + a sensor/motor I/O the
 > controller drives.** This page is the next altitude above the single-mechanism examples — multi-body,
-> articulated, actuated. Every pattern here is distilled from a **verified extraction of lpzrobots** (a
-> production ODE robotics simulator) into a clean dependency-free engine: it compiled and ran, a
-> differential-drive robot drove straight + turned, 11/11 physics invariants passed.
+> articulated, actuated. These are patterns for composing many ODE bodies/geoms/joints into a reusable
+> articulated, actuated robot.
 
 ## 1. A part = body + geom + an owner back-pointer
 
@@ -53,7 +52,8 @@ ODE gives one body **one** inertia. For a part made of several shapes:
   `dMassTranslate`/`dMassRotate` into place, `dMassAdd` them, **then `dMassTranslate(&m, -m.c[0], -m.c[1],
   -m.c[2])` so the combined centre of mass lands at the body origin** (ODE *requires* the CoM at the origin —
   `references/foundations/coordinate-frames.md`), then `dBodySetMass` once. **Skipping the re-centre makes `dBodySetMass` abort** ("The centre of mass must
-  be at the origin", `ode/src/ode.cpp:495`) — or, if assertions are disabled, the body silently jumps/double-moves instead.
+  be at the origin" — the CoM-at-origin requirement is documented for `dBodySetMass` at `include/ode/objects.h:1153`
+  and the body coordinate frame at `objects.h:876`) — or, if assertions are disabled, the body silently jumps/double-moves instead.
   Skipping the mass build entirely leaves one shape's inertia and it tumbles wrong. *If incremental
   composition gets fragile, the robust alternative is one shape per body joined by `dJointCreateFixed` welds —
   what the field robot-engine settled on.*
@@ -79,8 +79,8 @@ for each step:
 
 ## 7. The near-callback, scaled up for a multi-body robot
 
-The demo near-callback is the simple case. A robot world needs three more things (see lpzrobots'
-`Simulation::nearCallback`):
+The demo near-callback is the simple case. A robot world needs three more things — sub-space recursion,
+a jointed-pair skip, and per-geom material lookup:
 
 ```c
 static void nearCallback(void *data, dGeomID o1, dGeomID o2) {

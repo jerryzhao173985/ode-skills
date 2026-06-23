@@ -77,7 +77,14 @@ C++ program shape in `references/cpp-patterns.md` §5.
 - **Constraint-satisfaction metric.** A joint's two anchor read-backs coincide only while the constraint
   holds, so `|dJointGetBallAnchor − dJointGetBallAnchor2|` (and the hinge/slider equivalents) is the live
   joint-stretch error — assert it stays tiny at rest (µm scale; a blown joint diverges to metres). This is
-  the single best *emergent* check that a jointed mechanism is intact. (Symbols in `include/ode/objects.h`;
+  the single best *emergent* check that an **open** chain / single joint is intact — **but it SATURATES for
+  over-constrained / closed loops**: ODE's ERP heals the positional error every step, so `|anchor−anchor2|`
+  stays ~µm no matter how badly the loop is broken (field: break 0.05→0.50 m all read ~2-3e-5 vs 1.2e-6
+  intact). For a **closed loop the violation lives in the REACTION FORCE, not the position** — set
+  `dJointSetFeedback` on the closing joint and assert its `dJointFeedback` force stays bounded (field:
+  25.7 N intact → 190-640 N broken). Use BOTH observables — the disjoint-blind-spot rule (§3) applied to this
+  very check. (A mis-placed *single* anchor still reads coincident, since both read-backs derive from one
+  stored constraint — separation catches a geometric *contradiction* among constraints, not one bad anchor.) (Symbols in `include/ode/objects.h`;
   the line is approximate — grep your installed header.)
 - **Determinism fingerprint.** Don't eyeball "same trajectory" — hash it. Run twice, fold every body's
   final position + orientation into one digest (e.g. FNV-1a over the `double`s) and compare bit-for-bit

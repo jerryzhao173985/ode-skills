@@ -50,5 +50,8 @@ Enable FP exceptions (`feenableexcept(FE_DIVBYZERO|FE_INVALID)`) and run under U
 ## Direct3D + double precision
 D3D switches the FPU to single precision — pass `D3DCREATE_FPU_PRESERVE` to `CreateDevice` so a double-precision ODE build keeps its precision. _(FAQ)_
 
+## Closed kinematic loop (four-bar linkage, parallel gripper, small Stewart loop)
+A loop of links closed by joints is **over-constrained** — the closing joint adds a redundant constraint the solver must reconcile. Three things an open chain never needs: (1) **soften the closing joint** with a small per-joint CFM — `dJointSetHingeParam(jClose, dParamCFM, 1e-6)` (`common.h`) — or the redundant constraint fights itself and jitters; (2) use **`dWorldStep`** (accurate LCP), not `dWorldQuickStep`, so the loop's coupled constraints converge; (3) drive the input with a motored hinge (`dParamVel`+`dParamFMax`) whose force ceiling can overpower the closing reaction. **Verify with the reaction force, not anchor separation** — for an over-constrained loop ERP heals the position so `|anchor−anchor2|` saturates; set `dJointSetFeedback` on the closing joint and assert its `dJointFeedback` force stays bounded (`references/foundations/verifying-simulations.md`). _(Field-proven: a four-bar where anchor-separation read ~3e-5 m whether intact or broken, but the closing force read 25.7 N intact vs 190-640 N broken.)_
+
 ## See also
 `references/examples/` (runnable versions of these), `references/foundations/stepping-and-stability.md`, `references/foundations/{mental-model,erp-cfm-friction,known-issues}.md`.

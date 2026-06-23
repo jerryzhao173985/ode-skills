@@ -82,7 +82,7 @@ The `Build*` array variants share the trailing args `dReal width, dReal depth, i
 ## Pitfalls
 
 - Calling `dGeomHeightfieldDataSetBounds` *after* binding is ignored — the AABB is fixed at first generation, so set bounds before `dCreateHeightfield` (`include/ode/collision.h:1436`).
-- Build with `bCopyHeightData=0` from a stack-local array that goes out of scope → use-after-free during collision; either copy (`=1`) or keep the array alive (mistakes in trimesh-heightfield.json).
+- Build with `bCopyHeightData=0` from a stack-local array that goes out of scope → use-after-free during collision; either copy (`=1`) or keep the array alive.
 - Height is along **local Y**, not Z — assuming Z-up without rotating the placeable geom puts the terrain in the wrong plane (`include/ode/collision.h:1147`).
 - `dGeomHeightfieldDataBuildSingle` takes `float*` and `dGeomHeightfieldDataBuildDouble` takes `double*` regardless of `dReal` — precision is selected by function name (`include/ode/collision.h:1364`,`:1414`).
 

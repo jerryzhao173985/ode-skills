@@ -25,7 +25,7 @@ build flags, not so you call them.
   DEtection, by Pierre Terdiman). Uses hierarchical (no-leaf, quantizable)
   AABB-trees; memory-efficient and fast for mostly-static meshes; supports
   mesh-mesh plus sphere/box/ray/OBB/planes queries.
-  Cite: `backends-survey.json` survey item "OPCODE (OPtimized COllision DEtection, by Pierre Terdiman)".
+  Cite: `OPCODE/README-ODE.txt`, `OPCODE/ReadMe.txt`.
 - **Where / role:** `OPCODE/` (entry header `OPCODE/Opcode.h`; `OPCODE/Ice/` has
   the support files; `OPCODE/README-ODE.txt`, `OPCODE/ReadMe.txt`). It is an
   internal backend reached only via ODE's `dGeomTriMesh*` API.
@@ -44,7 +44,7 @@ build flags, not so you call them.
   Leon), marked experimental in ODE. No hierarchy trees; AABB-tree for rigid
   meshes OR box-pruning for deformable meshes, with cheap updates on
   transform/vertex edits — better for moving/deformable trimeshes.
-  Cite: `backends-survey.json` survey item "GIMPACT (Geometric tools for VR, by Francisco Leon)".
+  Cite: `GIMPACT/include/GIMPACT/gimpact.h`.
 - **Where / role:** `GIMPACT/` (entry header `GIMPACT/include/GIMPACT/gimpact.h`
   with `gimpact_init`/`gimpact_terminate`; sources in `GIMPACT/src/`). Internal
   backend; use via ODE's trimesh API only.
@@ -63,7 +63,7 @@ build flags, not so you call them.
   to FILL IN collider pairs it lacks robust native code for. Each geom type plugs
   in via a "support function" (returns the furthest point of a convex object in a
   direction).
-  Cite: `backends-survey.json` survey item "libccd (by Daniel Fiser, danfis.cz)".
+  Cite: `libccd/src/ccd/ccd.h`.
 - **Where / role:** `libccd/` (entry header `libccd/src/ccd/ccd.h`; sources
   `alloc.c`/`ccd.c`/`mpr.c`/`polytope.c`/`support.c`/`vec3.c`). Internal backend,
   not a public ODE symbol (e.g. `ccdGJKIntersect`, `ccd_t` are not ODE API).
@@ -84,7 +84,7 @@ build flags, not so you call them.
   backend**. It is ODE's portability/concurrency support library: cross-platform
   atomic (interlocked) operations, thread-local storage, assertion macros,
   flags/enum templates.
-  Cite: `backends-survey.json` survey item "ou (ODER's Utilities Library, OU, by Oleh Derevenko)".
+  Cite: `ou/README.TXT`.
 - **Where / role:** `ou/` (public headers `ou/include/ou/*.h`: `atomic.h`,
   `threadlocalstorage.h`, `atomicflags.h`, etc.; `ou/README.TXT`). Compiled under
   the C++ namespace `odeou` so multiple OU copies can link into one binary.
@@ -104,7 +104,7 @@ Thin ODE-internal adapters live in `ode/src/collision_trimesh_opcode.*`,
 they sit behind is `include/ode/collision_trimesh.h`. `collision_trimesh_disabled.cpp`
 is the no-op path when `ODE_NO_TRIMESH` (then `dGeomTriMesh*` functions compile
 out / silently do nothing — trimesh geoms collide with nothing).
-Cite: `backends-survey.json` survey item "ODE-side wrapper/glue (where backends meet the engine)"; and `OPCODE/README-ODE.txt:6` ("If NEITHER trimesh backend is compiled (ODE_NO_TRIMESH / --with-trimesh=none), dGeomTriMesh* functions are compiled out / silently do nothing - trimesh geoms collide with nothing.").
+Cite: `OPCODE/README-ODE.txt:6` ("If NEITHER trimesh backend is compiled (ODE_NO_TRIMESH / --with-trimesh=none), dGeomTriMesh* functions are compiled out / silently do nothing - trimesh geoms collide with nothing.").
 
 > Trimesh backend selection is **mutually exclusive**: one of `-DdTRIMESH_OPCODE`
 > (default) or `-DdTRIMESH_GIMPACT` per build; never both.

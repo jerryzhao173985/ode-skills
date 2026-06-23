@@ -63,8 +63,8 @@ Cited by include/ode/objects.h:1776, include/ode/objects.h:1873 (dJointAttach), 
 
 ## Never invent
 
-- `dJointSetMotorVelocity` / `dJointSetAMotorVel` — use `dJointSetAMotorParam(j, dParamVel, ...)`. Cited by `03-joints.json` never_invent.
-- `dParamMotorVel` / `dParamMaxForce` — correct names are `dParamVel` / `dParamFMax`. Cited by `03-joints.json` never_invent.
+- `dJointSetMotorVelocity` / `dJointSetAMotorVel` — use `dJointSetAMotorParam(j, dParamVel, ...)`. (grep `include/ode/objects.h` — not a real symbol)
+- `dParamMotorVel` / `dParamMaxForce` — correct names are `dParamVel` / `dParamFMax`. (grep `include/ode/objects.h` — not a real symbol)
 - `dJointAddAMotorTorque` (singular) — the function is `dJointAddAMotorTorques`. Cited by include/ode/objects.h:2505.
 
 Cross-link: references/joints.md (joints overview).

@@ -67,7 +67,7 @@ Cited by include/ode/objects.h:1816, include/ode/objects.h:1873 (dJointAttach), 
 
 ## Never invent
 
-- `dJointCreateGearbox` — the function is `dJointCreateTransmission`. Cited by `03-joints.json` never_invent.
+- `dJointCreateGearbox` — the function is `dJointCreateTransmission`. (grep `include/ode/objects.h` — not a real symbol)
 - `dJointSetTransmissionGearRatio` — the setter is `dJointSetTransmissionRatio`. Cited by include/ode/objects.h:3267.
 - `dTransmissionGear` — modes are `dTransmissionParallelAxes` / `dTransmissionIntersectingAxes` / `dTransmissionChainDrive`. Cited by include/ode/common.h:508.
 

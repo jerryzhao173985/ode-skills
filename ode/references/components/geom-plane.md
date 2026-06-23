@@ -42,7 +42,7 @@ In the collision `nearCallback`, a plane (like any static geom) returns body `0`
 ## Pitfalls
 
 - Calling `dGeomSetPosition`/`dGeomSetRotation` on a plane is a debug-build runtime error — planes are non-placeable; position/rotation setters require a placeable geom (`include/ode/collision.h:88`).
-- To move the plane, set the coefficients: `dCreatePlane(space,0,0,1,5)` puts the ground at `z=5`, **not** `dGeomSetPosition(p,0,0,5)` (mistake noted in 04-collision.json mistakes).
+- To move the plane, set the coefficients: `dCreatePlane(space,0,0,1,5)` puts the ground at `z=5`, **not** `dGeomSetPosition(p,0,0,5)`.
 - The plane is infinite and static; it has no body, so in the `nearCallback` `dGeomGetBody` returns `0` and the contact joint binds to the static environment (`ode/demo/demo_buggy.cpp:105`).
 
 ## Never invent

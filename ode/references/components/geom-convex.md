@@ -8,7 +8,7 @@ A convex-hull geom built from three caller-owned arrays: **face plane equations*
 
 ## Create & attach
 
-The three data arrays are **referenced, not copied** — they must outlive the geom (`.extract-ds-skill-scratch/deep-inv/trimesh-heightfield.json`, cite include/ode/collision.h:965).
+The three data arrays are **referenced, not copied** — they must outlive the geom (`include/ode/collision.h:965`).
 
 ```c
 /* planes : 4 dReals per face (a,b,c,d)
@@ -46,7 +46,7 @@ dGeomID geom = dCreateConvex
 
 - **`_planes`**: 4 `dReal`s per face — a plane equation `a,b,c,d`. **`_planecount`** is the number of faces.
 - **`_points`**: 3 `dReal`s per vertex `(x,y,z)`. **`_pointcount`** is the number of vertices.
-- **`_polygons`**: a flat `unsigned int` list; for each face a count followed by that many point indices (`<vertexCount, idx0, idx1, ...>` per face) (`.extract-ds-skill-scratch/deep-inv/trimesh-heightfield.json`, survey of include/ode/collision.h:964-978).
+- **`_polygons`**: a flat `unsigned int` list; for each face a count followed by that many point indices (`<vertexCount, idx0, idx1, ...>` per face) (`include/ode/collision.h:964-978`).
 - Convex is **placeable**: bind to a body with `dGeomSetBody`, or offset from a body with `dGeomSetOffsetPosition`/`dGeomSetOffsetRotation` (as in `ode/demo/demo_convex.cpp:257`).
 
 ## Pitfalls

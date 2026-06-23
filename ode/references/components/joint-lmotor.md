@@ -46,7 +46,7 @@ Cited by include/ode/objects.h:1784, include/ode/objects.h:1873 (dJointAttach), 
 
 ## Never invent
 
-- `dJointSetMotorVelocity` / `dJointSetMaxForce` — use `dJointSetLMotorParam(j, dParamVel / dParamFMax, ...)`. Cited by `03-joints.json` never_invent.
+- `dJointSetMotorVelocity` / `dJointSetMaxForce` — use `dJointSetLMotorParam(j, dParamVel / dParamFMax, ...)`. (grep `include/ode/objects.h` — not a real symbol)
 - `dJointGetLMotorPosition` — no such getter exists in include/ode/objects.h (LMotor exposes only NumAxes/Axis/Param getters). Cited by include/ode/objects.h:3126.
 - `dJointAddLMotorForces` — no such function; apply forces via `dBodyAddForce`. Cited by include/ode/objects.h:3138.
 

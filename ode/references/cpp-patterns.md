@@ -148,6 +148,30 @@ forces/torques each step in a pure-dynamics loop — no joints, no collision. Fi
   controller; an "upright" check passes trivially on a body that never moved). See
   `references/foundations/verifying-simulations.md`.
 
+### Runtime grasp/release (creating & destroying constraints mid-sim)
+A constraint has a **lifetime** — and you can start and end one at runtime, which is exactly how you grasp
+and release. Worked + tested: `assets/grasp_release.cpp` (a kinematic gripper picks a box, carries it 1 m, drops it).
+
+```c
+// GRASP — dJointSetFixed locks the CURRENT relative pose, so you grasp wherever the bodies are now.
+dBodyEnable(object);                       // a resting body may be auto-disabled — wake it first
+dJointID grasp = dJointCreateFixed(world, 0);
+dJointAttach(grasp, gripper, object);
+dJointSetFixed(grasp);
+/* ... carry ... */
+dJointDestroy(grasp); grasp = 0;           // RELEASE — body keeps its velocity, then falls/rests
+```
+- **Suppress the gripper↔object contact pair.** If both have geoms and touch, their contact joints fight the
+  grasp joint (a redundant constraint — a mini closed loop) → jitter. Skip that one pair in the near-callback
+  (`if ((o1==gripGeom&&o2==objGeom)||(o1==objGeom&&o2==gripGeom)) return;`) so the fixed joint is the sole coupling.
+- A **kinematic** gripper (`dBodySetKinematic`, velocity-driven each step) is the simplest carrier — forces
+  don't move it, so the grasped object follows its scripted path exactly.
+- `dJointSetFixed` locks the pose *as it is at grasp time* — to grasp in a specific pose, position first.
+- Verify 3-phase + falsifiably: **pre** (object independent) → **held** (object tracks the gripper, joint
+  separation tiny) → **released** (object free, falls). Prove it bites: `--bug=no-grasp` (object left behind)
+  and `--bug=no-release` (object stuck to the gripper) both FAIL. Cites: `dJointSetFixed` lock-current-pose
+  (`references/components/joint-fixed.md`), `dBodyEnable` (`include/ode/objects.h`).
+
 ## 5. The canonical C++ program shape: build headless + self-checking
 
 Make every program a `#ifdef HEADLESS` two-build: the same physics renders (optional) or runs headless and

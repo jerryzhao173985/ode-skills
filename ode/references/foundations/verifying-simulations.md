@@ -14,9 +14,12 @@ confidence. The five principles below are what separate a real verdict from a ru
 > satisfaction), `differs()` (the A/B confound guard), and a `Checks` accumulator that prints each PASS/FAIL
 > and returns the exit-code verdict. Worked, runnable usage: `assets/harness_selftest.cpp`.
 
-## 1. Fixed-baseline energy — assert E never grows
+## 1. Fixed-baseline energy — assert E never grows (passive/conservative systems only)
 Total mechanical energy `E = KE + PE` must fall (contacts dissipate) then **hold**; a *growing* E is the
-universal signature of instability (bad ERP/CFM, too-large `DT`, precision mismatch). Record a baseline
+universal signature of instability (bad ERP/CFM, too-large `DT`, precision mismatch). **This check applies
+only to passive systems.** A thrust- or motor-driven craft (quadrotor, walking robot, conveyor) *adds*
+energy by design, so energy is not bounded — for those, drop the energy check and assert **bounded state +
+reached-target** instead (final pose within tolerance, speed/tilt bounded, no NaN, no tunnel). Record a baseline
 `E0` after settling (or at launch) and assert `E(t) ≤ E0 + ε` for all `t` — against a **fixed** baseline,
 not a running max (a running max can never fail).
 - **Good:** `E0` = energy at impact launch; FAIL if any later step exceeds it by > tolerance (`assets/jenga.cpp`).

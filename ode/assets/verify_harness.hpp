@@ -12,7 +12,9 @@
 //   ode_verify::Checks V;
 //   V.check("finite",   ode_verify::finite(bodies));
 //   V.check("no tunnel", ode_verify::min_z(bodies) > FLOOR - 0.05);
-//   V.check("energy bounded", ode_verify::total_energy(bodies,g) <= E0 + 1e-3*Escale);
+//   V.check("energy bounded", ode_verify::total_energy(bodies,g) <= E0 + 1e-3*Escale); // PASSIVE systems only
+//   // Non-conservative (thrust/motor-driven) sims ADD energy by design — skip the energy check; instead
+//   // assert reached-target + bounded state (e.g. V.check("reached", dist<tol); V.check("upright", tilt<lim);).
 //   return V.report("my_sim");                                // prints PASS/FAIL lines + RESULT, returns 0/1
 #ifndef ODE_VERIFY_HARNESS_HPP
 #define ODE_VERIFY_HARNESS_HPP

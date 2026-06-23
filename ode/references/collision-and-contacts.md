@@ -100,8 +100,10 @@ To give each object its own friction/bounce/softness (wood vs ice; a snake's ani
   full cited recipe is `references/foundations/erp-cfm-friction.md` (Combining two materials). Surface params
   are then computed **per colliding pair**, not fixed — the linchpin of a material-based contact model.
   `dGeomSetData`/`dGeomGetData` are in `include/ode/collision.h`.
-- **Direction-dependent friction** (a snake / tracked robot): set `dContactFDir1` in `surface.mode` and
-  `contact.fdir1` along the low-friction axis, with `mu` (along `fdir1`) ≠ `mu2` (perpendicular).
+- **Direction-dependent friction** (a snake / tracked robot): set `dContactFDir1` **and** `dContactMu2` in
+  `surface.mode`, and point `contact.fdir1` along the **grip (high-`mu`) axis** — `mu` acts along `fdir1`,
+  `mu2` along `fdir2 = normal × fdir1` (the **slide** axis). So the body grips across high `mu` and slides
+  along low `mu2`. (Field-verified; full model in `references/foundations/erp-cfm-friction.md`.)
 
 ## Canonical pipeline code
 

@@ -4,12 +4,6 @@
 > Field-tested: across many real builds, the agents who got this model right wrote correct programs on the
 > first try; the ones who pattern-matched a single "canonical loop" bolted on machinery they didn't need.
 
-> **The deeper lens: ODE is a constraint solver over rigid bodies.** Joints, motors, contacts, loop closures,
-> and friction are all *constraints* with different lifetimes — joints persistent · motors impose a target each
-> step · contact joints last one step · a joint can be created or destroyed mid-sim (lifetime is a tool, not a
-> fixed property). Most ODE failures are constraint stiffness/softness (ERP/CFM), timestep, solver convergence,
-> or frame/sign — not wrong API calls.
-
 ## 1. ODE is TWO independent subsystems you compose
 
 The public headers split cleanly, and so should your mental model:

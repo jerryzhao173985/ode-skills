@@ -103,6 +103,38 @@ inline bool differs(double with_mechanism, double without_mechanism, double min_
     return std::fabs(with_mechanism - without_mechanism) >= min_gap;
 }
 
+// --- controlled-plant checks (non-conservative, actively-controlled sims: drones, vehicles, arms) ----
+// total_energy() does NOT apply when a controller injects energy. Assert reach + attitude + settle instead.
+// WARNING: "reached"/"upright" pass TRIVIALLY if the body never moved — pair them with a `differs()`
+// negative control (the plant must FALL / drift to its target's miss-distance without the controller).
+
+inline double goal_distance(dBodyID b, const double target[3]) {   // reached-target / goal-distance
+    const dReal* p = dBodyGetPosition(b);
+    double dx = p[0]-target[0], dy = p[1]-target[1], dz = p[2]-target[2];
+    return std::sqrt(dx*dx + dy*dy + dz*dz);
+}
+// tilt of a body's local +Z away from world +Z, radians (0 = perfectly upright). dBodyGetRotation is 3x4
+// row-padded; body +Z in world = column 2 = (R[2],R[6],R[10]), and its dot with world-up (0,0,1) is R[10].
+inline double tilt(dBodyID b) {
+    double c = (double)dBodyGetRotation(b)[10];
+    if (c > 1) c = 1; if (c < -1) c = -1;
+    return std::acos(c);
+}
+// steady-state detector: feed max_speed(bodies) each step; settled() is true once the last `window` samples
+// are ALL below `thresh` — proves the system actually came to rest, not that one lucky frame was slow.
+struct Settle {
+    std::vector<double> hist;
+    void update(double speed) { hist.push_back(speed); }
+    bool settled(size_t window, double thresh) const {
+        if (hist.size() < window) return false;
+        for (size_t i = hist.size() - window; i < hist.size(); ++i) if (hist[i] >= thresh) return false;
+        return true;
+    }
+};
+// control-effort integral: accumulate ∑|u|·dt; a huge value flags chatter/saturation — a controller that
+// "holds" a pose via violent actuation passes a pose check but is not actually stable.
+struct Effort { double total = 0; void add(double u, double dt) { total += std::fabs(u) * dt; } };
+
 // --- pass/fail accumulator → exit-code verdict ------------------------------
 struct Checks {
     int passed = 0, failed = 0;

@@ -130,6 +130,24 @@ motor (`dJointAttach(am, 0, b)`) and an **interior two-body** motor (`dJointAtta
 **opposite** effective sense. Calibrate it with a tiny gravity-off probe (`assets/probe_sign.cpp` → +1,
 `assets/probe_sign2.cpp` → −1) and store a per-joint sign. See `references/components/joint-amotor.md`.
 
+### Force-based control (thrust/torque — the alternative to motors)
+For a body actuated by **forces**, not joint motors (a drone, rocket, reaction wheel, thruster), apply
+forces/torques each step in a pure-dynamics loop — no joints, no collision. Field-proven on a quadrotor:
+- **A rotor = a body-frame +Z thrust at a body-local offset:** `dBodyAddRelForceAtRelPos(b, 0,0,T, px,py,0)`.
+  The offset makes the **roll/pitch torque emerge for free** (`include/ode/objects.h`, ~`:1170`). **Yaw is NOT
+  free** — add the rotor reaction explicitly: `dBodyAddRelTorque(b, 0,0, Σ spinᵢ·κ·Tᵢ)`.
+- **Read attitude from the rotation matrix** (3×4 row-padded): the body's local +Z in world is column 2;
+  `acos(R[10])` is the tilt from vertical (0 = upright); `w_body = Rᵀ·w_world` for body-rate feedback.
+- **Cascaded PD:** altitude PD → total thrust; position PD → desired tilt; attitude PD → body torques; then a
+  rotor **mixer**. Force accumulators clear each step (`references/bodies-and-mass.md`) — re-apply every step.
+- **Measure every mixer/control sign with a probe — never assume the textbook convention.** Field: a
+  quadrotor with assumed signs diverged to 366 m; a one-body probe measured `+pitch→+X`, `+roll→−Y` and fixed
+  it (same discipline as the AMotor sign trap above).
+- **Verification:** energy-non-growth does **not** apply (thrust injects energy) — use `verify_harness.hpp`'s
+  `goal_distance` / `tilt` / `Settle` + a `differs()` negative control (the craft must fall/miss without the
+  controller; an "upright" check passes trivially on a body that never moved). See
+  `references/foundations/verifying-simulations.md`.
+
 ## 5. The canonical C++ program shape: build headless + self-checking
 
 Make every program a `#ifdef HEADLESS` two-build: the same physics renders (optional) or runs headless and

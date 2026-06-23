@@ -18,6 +18,14 @@
   CFM = 1   / (h·kp + kd)
   ```
   Pick `kp`, `kd`, then derive `soft_erp`/`soft_cfm` for a contact with the feel you want. _(Manual: How to use ERP and CFM to simulate springs)_
+- **The same law makes a designed spring on a JOINT, not only a contact.** It is the *identical* equation —
+  only the destination changes: feed the derived values to a joint stop via `dParamStopERP`/`dParamStopCFM`
+  (or to the whole world via `dWorldSetERP`/`dWorldSetCFM`) instead of `dContactSoftERP`/`dContactSoftCFM`.
+  The standard grounded sprung-mass: a slider (or hinge) with **`LoStop = HiStop = 0`** (a zero-length stop)
+  plus soft `dParamStopERP`/`dParamStopCFM` is a two-sided compliant spring anchored at position 0 — the soft
+  stop *is* the spring. (Field-verified: a target f₀/ζ → kp,kd → this law → measured frequency matched the
+  design to ~1%.) Note `dParamSuspensionERP`/`dParamSuspensionCFM` is the **hinge2-only** wheel-suspension
+  variant; for any other joint use the generic `dParamStop*`.
 
 ## Combining two materials (the production recipe)
 

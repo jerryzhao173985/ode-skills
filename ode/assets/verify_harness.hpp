@@ -124,6 +124,34 @@ inline double tilt(dBodyID b) {
 }
 // steady-state detector: feed max_speed(bodies) each step; settled() is true once the last `window` samples
 // are ALL below `thresh` — proves the system actually came to rest, not that one lucky frame was slow.
+// --- passive-oscillator checks. A designed COMPLIANT / sprung system must be verified by its FREQUENCY
+// --- and damping, NOT energy: energy-non-growth is BLIND to a wrong-stiffness spring (a 2.25x stiffness
+// --- error conserves energy but shifts the measured frequency 1.5x). Feed a recorded scalar signal, e.g.
+// --- the mass's z(t) sampled every step; compare against your design target f0 = (1/2pi)*sqrt(kp/m).
+inline double measured_frequency(const std::vector<double>& signal, double dt) {  // Hz, upward zero-crossings
+    if (signal.size() < 4 || dt <= 0) return 0.0;
+    size_t tail = signal.size() / 2; double mean = 0;                  // late mean ~ the settled equilibrium
+    for (size_t i = tail; i < signal.size(); ++i) mean += signal[i];
+    mean /= double(signal.size() - tail);
+    int crossings = 0; double t0 = -1, t1 = -1;
+    for (size_t i = 1; i < signal.size(); ++i)
+        if (signal[i-1] < mean && signal[i] >= mean) { double t = double(i)*dt; if (t0 < 0) t0 = t; t1 = t; ++crossings; }
+    return (crossings < 2 || t1 <= t0) ? 0.0 : double(crossings - 1) / (t1 - t0);
+}
+inline double damping_ratio_logdec(const std::vector<double>& signal) {            // zeta from log-decrement
+    if (signal.size() < 4) return 0.0;
+    size_t tail = signal.size() / 2; double mean = 0;
+    for (size_t i = tail; i < signal.size(); ++i) mean += signal[i];
+    mean /= double(signal.size() - tail);
+    std::vector<double> pk;                                            // local maxima above the mean
+    for (size_t i = 1; i + 1 < signal.size(); ++i)
+        if (signal[i] > mean && signal[i] > signal[i-1] && signal[i] >= signal[i+1]) pk.push_back(signal[i] - mean);
+    if (pk.size() < 2 || pk.front() <= 0 || pk.back() <= 0) return 0.0;
+    double delta = std::log(pk.front() / pk.back()) / double(pk.size() - 1);        // mean per-cycle decrement
+    static const double PI = 3.14159265358979323846;
+    return delta / std::sqrt(4.0 * PI * PI + delta * delta);
+}
+
 struct Settle {
     std::vector<double> hist;
     void update(double speed) { hist.push_back(speed); }

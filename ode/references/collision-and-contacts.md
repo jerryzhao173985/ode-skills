@@ -83,6 +83,7 @@
 - `dSpaceCollide`/`dSpaceCollide2` may report close-but-non-intersecting pairs, so `dCollide` can return 0 for a pair the callback received — always check `n > 0` before building joints (include/ode/collision.h:812).
 - `CONTACTS_UNIMPORTANT` (`0x80000000`) may be OR'd into the `dCollide` flags to skip contact refining and just generate any contacts; all bits other than the low 16 (count) and this must be zero (include/ode/collision.h:743).
 - Filter unwanted pairs inside the callback: e.g. skip pairs whose bodies are already connected by a joint via `if (b1 && b2 && dAreConnectedExcluding(b1,b2,dJointTypeContact)) return;` (ode/demo/demo_boxstack.cpp:140).
+- For arbitrary pairs that are **neither joint-connected nor separable by category/collide bits**, a production engine keeps an explicit **ignored-pair set** checked before `dCollide`: store each pair **both ways** — `(g1,g2)` and `(g2,g1)` — so the lookup is order-independent, and `return;` on a hit (lpzrobots `OdeHandle::addIgnoredPair`/`isIgnoredPair`, `odehandle.h:72-83`).
 - **Per-geom materials / owner recovery:** store the owning object on each geom with `dGeomSetData(geom, owner)` (`include/ode/collision.h:75`) and recover it in the callback with `dGeomGetData` — this is how real frameworks choose per-geom surface params (friction/bounce/material) and filter collisions, rather than one global surface. For a **multi-body robot** with nested sub-spaces, recurse with `dSpaceCollide2` and scale these patterns up — see `references/building-robots.md` §7.
 
 ## Pattern: per-material contacts (how real robot simulators do it)
@@ -92,11 +93,13 @@ To give each object its own friction/bounce/softness (wood vs ice; a snake's ani
 - **At creation:** `dGeomSetData(geom, owner)` stores a `void*` on the geom (e.g. your `Primitive*` or a
   `Material*`).
 - **In the near-callback:** `dGeomGetData(o1)` / `dGeomGetData(o2)` recover both owners, **combine** their
-  materials (e.g. `mu = min(mu1, mu2)`; hardness via the spring-damper → ERP/CFM law), and write the result
-  into each `contact[i].surface` *before* `dJointCreateContact`. Surface params are then computed **per
-  colliding pair**, not fixed — the linchpin of a material-based contact model (e.g. lpzrobots' `Substance`).
-  `dGeomSetData`/`dGeomGetData` are in `include/ode/collision.h`; the hardness-combination law is in
-  `references/foundations/erp-cfm-friction.md`.
+  materials, and write the result into each `contact[i].surface` *before* `dJointCreateContact`. How you
+  combine is your model's choice — `mu = min(mu1, mu2)` is the common engine default (Bullet/PhysX), but the
+  production exemplar lpzrobots' `Substance` instead uses **`mu = roughness1 · roughness2`** (a product, so two
+  rough<1 surfaces correctly give *low* friction) and derives `soft_erp`/`soft_cfm` from series springs. The
+  full cited recipe is `references/foundations/erp-cfm-friction.md` (Combining two materials). Surface params
+  are then computed **per colliding pair**, not fixed — the linchpin of a material-based contact model.
+  `dGeomSetData`/`dGeomGetData` are in `include/ode/collision.h`.
 - **Direction-dependent friction** (a snake / tracked robot): set `dContactFDir1` in `surface.mode` and
   `contact.fdir1` along the low-friction axis, with `mu` (along `fdir1`) ≠ `mu2` (perpendicular).
 

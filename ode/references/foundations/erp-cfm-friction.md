@@ -19,6 +19,31 @@
   ```
   Pick `kp`, `kd`, then derive `soft_erp`/`soft_cfm` for a contact with the feel you want. _(Manual: How to use ERP and CFM to simulate springs)_
 
+## Combining two materials (the production recipe)
+
+A material model exposes intuitive per-surface scalars (roughness, hardness `h`, elasticity `e`, slip) and
+combines the **two** contacting materials into `dSurfaceParameters` inside the near-callback. lpzrobots'
+`Substance` recipe (`lpzrobots/ode_robots/osg/substance.cpp:54-83`):
+```
+mu       = roughness1 · roughness2                    // PRODUCT — NOT min(mu1,mu2) (that's a Bullet/PhysX convention)
+kp       = 100 · h1·h2 / (h1+h2)                      // hardnesses combine as springs in SERIES
+kd       =  50 · ((1-e1)·h2 + (1-e2)·h1) / (h1+h2)    // damping from elasticity (1-e = fraction of energy lost)
+soft_erp = h·kp/(h·kp+kd);   soft_cfm = 1/(h·kp+kd)   // = the spring-damper law above, evaluated per contact
+slip1 = slip2 = slip1 + slip2                         // SUM
+mode  = dContactSoftERP | dContactSoftCFM | dContactApprox1   (+ dContactSlip1|dContactSlip2 only if slip > 1e-4)
+```
+The `100`/`50` are empirical scale factors. A per-geom callback may also veto/override a contact via a
+3-value return: `0` = drop it (no `dJointCreateContact` — a non-colliding geom), `1` = fall through to the
+default combine, `2` = "I already wrote `surface`, use as-is" (`substance`/`simulation.cpp:1384-1398`).
+
+**Anisotropic friction (snake belly / tracks): build `fdir1` per contact, every step.** `fdir1` is not a
+fixed world vector — recompute `fdir1 = bodyLongAxis × contact.normal` (normalize; fall back to any tangent
+when the axis is ∥ the normal), set `mode |= dContactFDir1 | dContactMu2`. The **HIGH** coefficient `mu` rides
+on `fdir1` (the **cross-body** direction); the **LOW** `mu2 = mu·ratio` (ratio<1) is on direction 2
+(`= normal × fdir1`, **along** the body's travel axis) — so friction is **low along the body's motion, high
+across it** (a snake slides forward and grips sideways). (`substance.cpp:204,221`; the doc states "friction
+along the axis is ratio-fold of the other directions", `substance.h:107-114`.)
+
 ## The friction model
 
 - **Coulomb cone.** Tangential friction is bounded by the normal force: |F_T| ≤ μ·|F_N|; admissible forces form a cone about the contact normal. Solving the exact cone is expensive, so ODE approximates it. _(Manual: Friction Approximation)_

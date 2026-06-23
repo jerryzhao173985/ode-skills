@@ -107,6 +107,17 @@ data: a Stewart-platform velocity servo with `KD = 1.5` chattered at ~1 m/s; dro
 improved every metric 100–1000×. (To get true PD *damping* instead, drive the joint with force —
 `dBodyAddForce`/`dJointAddHingeTorque` — where `-KD*pdot` is a real viscous term.)
 
+### Reusable velocity servo (production refinements)
+Packaging a motorized joint as a position→velocity servo, the details that make it stable (lpzrobots
+`motors/oneaxisservo.cpp`):
+- **One-step anti-overshoot clamp.** After computing the command velocity `v` toward `p_des`, cap it so it
+  can't pass the target in one step: `if (dt*|v| > |p_des - p|) v = (p_des - p)/dt;`. Kills the residual
+  jitter a pure P-servo leaves at the setpoint (`oneaxisservo.cpp:142-159`).
+- **The speed cap IS the gain.** `dParamVel` is clamped to `maxVel` with P-gain `≈ maxVel/2` — one knob sets
+  both proportional stiffness and top speed (`oneaxisservo.cpp:89`).
+- **Set hard joint stops ~30% OUTSIDE the servo's commanded travel** (`dParamLoStop`/`dParamHiStop`) so the
+  servo never fights its own limit; a stop *inside* the commanded range makes motor and constraint oscillate.
+
 ### The actuated-joint pattern (kinematic constraint + parallel user-mode AMotor)
 To torque-control a hinge DOF while keeping the structural constraint clean: build the `dHinge` with its
 own motor OFF (`dParamFMax = 0`), and attach a separate `dAMotor` in `dAMotorUser` mode (NumAxes=1) to the

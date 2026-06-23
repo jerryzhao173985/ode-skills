@@ -52,8 +52,11 @@ rather than assume it matches GLM/Bullet/your textbook.
 - **One invariant can be BLIND to a whole bug class — pick checks with DISJOINT blind spots.** A bug that *preserves* the quantity you assert is invisible to that assertion. *Field example (double pendulum):* flipping the gravity sign still does not grow total energy — gravity is conservative either direction, and the energy check recomputes PE from the same `g` you configured — so an energy-non-growth check PASSES the bug — only a check whose blind spot is disjoint (here the analytic normal-mode frequency, or "does the bob settle below where it started") catches it. This differs from the independent-oracle rule below: that guards against a verifier sharing *code/context*; this guards against the *metrics themselves* sharing a blind spot. Use ≥2 checks whose failure modes do not coincide.
 
 ## 4. Determinism — same seed + fixed DT + same build ⇒ same trajectory
-ODE is deterministic under a fixed step. Run the headless sim twice and compare final body positions to a
-recorded baseline within float tolerance. Non-determinism means uninitialized memory, a variable `DT`
+ODE is deterministic under a fixed step — but at the **PROCESS** level: launch the program twice and compare
+final positions to a recorded baseline. **In-process reruns can legitimately differ** under
+`dWorldQuickStep`+`dHashSpace` (broadphase pairs are ordered by geom *pointer address*, and SOR is
+ULP-order-sensitive, so a rebuilt world's shifted heap addresses reorder contacts) — so compare two PROCESS
+launches, not rerun-vs-rerun. Cross-process non-determinism means uninitialized memory, a variable `DT`
 sneaking in (use a fixed `DT`, never wall-clock — `references/foundations/stepping-and-stability.md`),
 a threading data race, or unseeded RNG. A flaky `PASS/FAIL` is itself a bug report.
 
@@ -86,10 +89,13 @@ C++ program shape in `references/cpp-patterns.md` §5.
   very check. (A mis-placed *single* anchor still reads coincident, since both read-backs derive from one
   stored constraint — separation catches a geometric *contradiction* among constraints, not one bad anchor.) (Symbols in `include/ode/objects.h`;
   the line is approximate — grep your installed header.)
-- **Determinism fingerprint.** Don't eyeball "same trajectory" — hash it. Run twice, fold every body's
-  final position + orientation into one digest (e.g. FNV-1a over the `double`s) and compare bit-for-bit
-  (fixed `DT`, no RNG). A mismatch is a real bug (uninitialised memory, a variable `DT`, a threading race —
-  note a genuinely multi-threaded step is *not* bit-reproducible, see `references/threading.md`).
+- **Determinism fingerprint.** Don't eyeball "same trajectory" — hash it: fold every body's final position +
+  orientation into one digest (e.g. FNV-1a over the `double`s) and compare bit-for-bit. **Run the two passes
+  as separate PROCESS launches**, not two in-process reruns — under `dWorldQuickStep`+`dHashSpace` an
+  in-process rerun reorders contacts (broadphase keyed on geom *pointer address*) and drifts at the ULP level
+  *even single-threaded*, so a same-process compare can false-FAIL. A *cross-process* mismatch is a real bug
+  (uninitialised memory, a variable `DT`, a threading race — a genuinely multi-threaded step is *not*
+  bit-reproducible, see `references/threading.md`).
 - **Auto-disable reads as zero motion.** A body ODE has auto-disabled reports ~zero velocity, so a
   "settled = low speed" check passes *trivially* the moment a body sleeps. For a verification metric, either
   keep auto-disable off, or assert the body actually reached its target pose — not just that it stopped.

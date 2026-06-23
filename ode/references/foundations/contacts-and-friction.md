@@ -71,6 +71,9 @@ Practical conceptual notes:
   `fdir2 = normal × fdir1` and the `normal`, which ODE **negates** when the contact joint
   is attached *reversed* — i.e. when one geom has **no body** (the `dJOINT_REVERSE` case):
   `ode/src/joints/contact.cpp:162-163` negates the normal, `:222` builds `fdir2 = normal × fdir1`.
+  **Source-less-install caveat:** a binary install (e.g. Homebrew) ships only headers + lib — **no `ode/src`**
+  — so you cannot grep this `mu`↔`fdir1` / `mu2`↔`fdir2` mapping there; **probe it** (set `fdir1`, give `mu`
+  vs `mu2` very different values, observe which axis slides) rather than trusting the assignment from memory.
   **Common case — a STATIC belt + dynamic objects:** the belt is body-less, so negate
   `motionN` and `motion2` (NOT `motion1`); the demo's `inv = -1 if contact.geom.g1 == belt`
   works only because the static belt lands in the body-less slot. Recipe (any direction):

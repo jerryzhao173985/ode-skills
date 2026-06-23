@@ -64,7 +64,9 @@ inline double total_energy(const std::vector<dBodyID>& bodies, const dReal g[3])
 }
 
 // --- determinism fingerprint (FNV-1a over final poses) ----------------------
-// Run the sim twice; equal digests ⇒ bit-reproducible (fixed DT, no RNG, single-threaded step).
+// Compare digests across TWO PROCESS LAUNCHES, not in-process reruns: under dWorldQuickStep+dHashSpace an
+// in-process rerun reorders contacts (broadphase keyed on geom pointer address) and drifts at the ULP level
+// even single-threaded. Equal digests across processes => bit-reproducible (fixed DT, no RNG, single-thread).
 inline uint64_t fnv1a(const void* data, size_t n, uint64_t h = 1469598103934665603ULL) {
     const unsigned char* p = (const unsigned char*)data;
     for (size_t i = 0; i < n; ++i) { h ^= p[i]; h *= 1099511628211ULL; }

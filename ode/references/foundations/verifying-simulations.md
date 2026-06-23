@@ -8,6 +8,12 @@
 A program that prints `PASS` while being physically wrong is worse than no check — it manufactures false
 confidence. The five principles below are what separate a real verdict from a rubber stamp.
 
+> **Don't re-derive it — drop in `assets/verify_harness.hpp`.** Header-only, depends only on `<ode/ode.h>`,
+> and packages every principle below as a primitive: `finite()` (NaN trip-wire), `total_energy()`,
+> `pose_digest()` (determinism fingerprint), `min_z()`/`max_speed()`, `joint_separation()` (constraint
+> satisfaction), `differs()` (the A/B confound guard), and a `Checks` accumulator that prints each PASS/FAIL
+> and returns the exit-code verdict. Worked, runnable usage: `assets/harness_selftest.cpp`.
+
 ## 1. Fixed-baseline energy — assert E never grows
 Total mechanical energy `E = KE + PE` must fall (contacts dissipate) then **hold**; a *growing* E is the
 universal signature of instability (bad ERP/CFM, too-large `DT`, precision mismatch). Record a baseline

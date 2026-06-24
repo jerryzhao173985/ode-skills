@@ -1,5 +1,7 @@
 # ode-skills
 
+[![verify](https://github.com/jerryzhao173985/ode-skills/actions/workflows/verify.yml/badge.svg)](https://github.com/jerryzhao173985/ode-skills/actions/workflows/verify.yml)
+
 An installable **[Claude Code](https://claude.com/claude-code) skill** that teaches an agent to design,
 build, and *verify* rigid-body physics simulations on the **[Open Dynamics Engine](https://www.ode.org/)
 (ODE)** in C/C++ — correctly, on the first try.

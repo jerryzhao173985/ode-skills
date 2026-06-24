@@ -10,6 +10,7 @@ a real temp dir (no hardcoded /tmp), and any C++ compiler ($CXX, else clang++/g+
 import os, sys, shlex, shutil, tempfile, subprocess
 
 SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BUILD_ONLY = "--build-only" in sys.argv   # compile+link only; skips the physics run (CI gate: version/precision-robust)
 
 def discover_ode():
     """Return (cflags_list, libs_list, version, via) using ode-config or pkg-config — whichever works."""
@@ -48,7 +49,7 @@ EXAMPLES = [
     ("probe_sign2.cpp",    ["-O2", "-std=c++17"]),
     ("harness_selftest.cpp", ["-O2", "-std=c++17"]),
 ]
-print("Building + running the shipped example programs:")
+print(("Compiling (build-only)" if BUILD_ONLY else "Building + running") + " the shipped example programs:")
 tmp = tempfile.mkdtemp(prefix="odeverify_")
 fail = 0
 try:
@@ -61,6 +62,8 @@ try:
         if b.returncode != 0:
             print(f"  FAIL(build)  {src}")
             print("    " + b.stderr.strip()[:400].replace("\n", "\n    ")); fail = 1; continue
+        if BUILD_ONLY:
+            print(f"  PASS(build)  {src}"); continue
         try:
             r = subprocess.run([out], capture_output=True, text=True, timeout=120)
             tail = ((r.stdout + r.stderr).strip().splitlines() or [""])[-1]
@@ -79,5 +82,5 @@ if os.path.exists(cc):
     if line:
         print(f"Citation drift vs your installed ODE: {line}")
 
-print("RESULT:", "all examples build+run PASS" if not fail else "FAIL")
+print("RESULT:", ("all examples build PASS" if BUILD_ONLY else "all examples build+run PASS") if not fail else "FAIL")
 sys.exit(1 if fail else 0)

@@ -1,0 +1,33 @@
+# CI for the ODE C++ skill. Two jobs in one:
+#   (1) continuous integrity — a future edit that breaks an example or links a non-existent symbol fails the push;
+#   (2) a genuine SECOND environment — GH runners use Linux apt ODE (a different version/precision than the
+#       Homebrew 0.16.6 the skill was authored against), so this is the natural test bed for the bidirectional
+#       version-drift the skill documents.
+#
+# Gate vs informational, by design:
+#   GATE         = examples COMPILE + LINK (verify-build.py --build-only). Version- and precision-robust: it
+#                  catches the regression that matters (broken example code) without depending on the runner's
+#                  ODE precision. This is the only hard pass/fail.
+#   INFORMATIONAL = the full run (physics self-checks — green when the runner's ODE is double, exit 2 = the
+#                  skill's own precision guard working, not a defect) + check-citations.py (the cross-version
+#                  symbol-drift report — expected to differ on a non-0.16.6 ODE; that difference is the signal,
+#                  not a failure). continue-on-error so CI is never a misleading red for an environment reason.
+name: verify
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ODE + build tools (apt — ships pkg-config ode)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends build-essential pkg-config libode-dev python3
+      - name: Show the ODE this runner provides
+        run: pkg-config --modversion ode && pkg-config --cflags --libs ode
+      - name: GATE — all examples compile + link (precision/version-robust)
+        run: python3 ode/scripts/verify-build.py --build-only
+      - name: Informational — full build + run (physics self-checks; precision-dependent)
+        continue-on-error: true
+        run: python3 ode/scripts/verify-build.py
+      - name: Informational — citation drift vs this runner's ODE version
+        continue-on-error: true
+        run: python3 ode/scripts/check-citations.py

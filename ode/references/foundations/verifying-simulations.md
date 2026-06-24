@@ -66,6 +66,12 @@ tests something it had to **compute**.
 - **Bad:** `dWorldSetGravity(w,0,0,-9.81); assert(dWorldGetGravity(w)[2]==-9.81);` — that "verifies" nothing.
 - **Good:** assert a dropped sphere's settled height ≈ its radius (the *solver* placed it on the floor), or
   that a hinge-constrained pair's two anchor read-backs coincide **after** stepping (the constraint held).
+- **For COMPLIANT constraints, verify force–deflection / frequency / damping — not rigid joint separation.**
+  When ERP/CFM (a soft suspension, springy joint, soft contact) is the *design* mechanism the joint is *meant*
+  to deflect, so anchor coincidence is the wrong check. Measure the emergent spring behavior: the oscillation
+  frequency and log-decrement damping should match your designed `kp`/`kd` (`assets/verify_harness.hpp`:
+  `measured_frequency()`, `damping_ratio_logdec()`). (Distinct from over-constrained *loops*, where the blind
+  spot is healed by ERP and the real signal is joint reaction force via `dJointFeedback`.)
 
 ## The checklist
 A trustworthy ODE self-check has: fixed `DT`; a NaN trip-wire every step; a no-tunnel floor check; a

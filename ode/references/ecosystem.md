@@ -229,7 +229,7 @@ Notable packages:
 ## External resources & corroborated practices
 
 Community-corroborated rules for *using* the public API (sourced from the ODE
-wiki/FAQ/user guide and tutorials in `web-best-practices.json`). These are
+wiki/FAQ/user guide and tutorials). These are
 behavioral guidance, not new symbols.
 
 **Main-loop & stepping**
@@ -288,7 +288,7 @@ behavioral guidance, not new symbols.
   `dContactSoftERP|dContactSoftCFM` in `surface.mode`. Cite:
   `https://classic.gazebosim.org/tutorials?tut=physics_params`.
 
-**Common crashes / mistakes (from `web-best-practices.json` mistakes)**
+**Common crashes / mistakes** (community-corroborated)
 - Sizing the `dContact` buffer smaller than the max-contacts arg to `dCollide`
   writes past the buffer → crash; size `dContact contact[N]` and pass stride
   `sizeof(dContact)`. Cite: `https://bedroomcoders.co.uk/posts/151`.
@@ -298,7 +298,7 @@ behavioral guidance, not new symbols.
 **Names that are NOT current API** — `dWorldStepFast1`, `dRayCreate`, `dCreateCCylinder`, `dInitODE` are removed/renamed; web tutorials still use them, and their modern replacements + cites are owned by `references/version-and-changelog.md` (the single deprecation-list owner).
 Reminder: `dContactGeom` is the `.geom` member of `dContact`, not a separate object — pass `&contact[0].geom` with stride `sizeof(dContact)` (see `references/collision-and-contacts.md`).
 
-> Note (from `web-best-practices.json` verify): several Gazebo knobs (kp, kd,
+> Note: several Gazebo knobs (kp, kd,
 > `contact_max_correcting_vel`, friction-pyramid params) belong to Gazebo's ODE
 > wrapper/SDF, not the raw ODE C API; the nearest raw equivalents are
 > `surface.soft_erp`/`soft_cfm` and `dWorldSetContactMaxCorrectingVel`. Treat

@@ -64,6 +64,17 @@ int main() {
     V.check("settle loose-thresh true",          settle.settled(50, 1e9));
     V.check("settle tight-thresh false",         !settle.settled(50, 0.0));
     V.check("control-effort accumulated",        effort.total > 0.0);
+    // oscillator helpers: recover a KNOWN frequency + damping from a synthetic damped sinusoid (pure-math unit test).
+    {
+        const double f0 = 2.0, zeta0 = 0.05, sdt = 1e-3;
+        const double w0 = 2.0 * 3.14159265358979 * f0, wd = w0 * std::sqrt(1.0 - zeta0 * zeta0);
+        std::vector<double> sig; sig.reserve(2500);
+        for (int n = 0; n < 2500; ++n) { double t = n * sdt; sig.push_back(std::exp(-zeta0 * w0 * t) * std::cos(wd * t)); }
+        double fmeas = ode_verify::measured_frequency(sig, sdt);
+        double zmeas = ode_verify::damping_ratio_logdec(sig);
+        V.check("measured_frequency recovers ~2 Hz",   std::fabs(fmeas - f0 * std::sqrt(1.0 - zeta0 * zeta0)) < 0.1);
+        V.check("damping_ratio_logdec recovers ~0.05", std::fabs(zmeas - zeta0) < 0.02);
+    }
     std::printf("  digest = %016llx (run twice; equal ⇒ deterministic)\n", (unsigned long long)digest);
 
     int rc = V.report("harness_selftest");

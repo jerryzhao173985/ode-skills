@@ -37,6 +37,8 @@ int main() {
     bool exploded = false;
     double maxSep = 0, lowZ = 1e300, maxE = E0;
     ode_verify::Settle settle; ode_verify::Effort effort;   // exercise the controlled-plant primitives
+    ode_verify::JointForceProbe jfp;                         // reaction-force probe — the only valid check for closed loops
+    if (!joints.empty()) jfp.attach(joints[0]);             // attach BEFORE stepping; ODE stores &jfp.fb (must outlive)
     for (int i = 0; i < 4000; ++i) {                    // pure-dynamics loop: no dSpaceCollide / contacts
         if (!dWorldStep(world, DT)) { exploded = true; break; }
         if (!ode_verify::finite(bodies)) { exploded = true; break; }
@@ -44,6 +46,7 @@ int main() {
         for (dJointID j : joints) { double s = ode_verify::joint_separation(j); if (s > maxSep) maxSep = s; }
         double z = ode_verify::min_z(bodies); if (z < lowZ) lowZ = z;
         settle.update(ode_verify::max_speed(bodies)); effort.add(0.1, DT);
+        jfp.update();                                       // peak hinge reaction force/torque (after dWorldStep)
     }
 
     uint64_t digest = ode_verify::pose_digest(bodies);
@@ -64,6 +67,10 @@ int main() {
     V.check("settle loose-thresh true",          settle.settled(50, 1e9));
     V.check("settle tight-thresh false",         !settle.settled(50, 0.0));
     V.check("control-effort accumulated",        effort.total > 0.0);
+    // reaction-force probe: the hinge carries the pendulum's weight → force is finite, nonzero, and bounded.
+    V.check("joint reaction force finite+bounded", std::isfinite(jfp.peakF) && std::isfinite(jfp.peakT) && jfp.peakF < 1e4 && jfp.peakT < 1e4);
+    V.check("joint reaction force probe is live",  jfp.peakF > 0.0);              // it actually read a load
+    V.check("tight force bound correctly FAILS",   !(jfp.peakF < 1e-9));          // proves the bounded-check can FAIL
     // oscillator helpers: recover a KNOWN frequency + damping from a synthetic damped sinusoid (pure-math unit test).
     {
         const double f0 = 2.0, zeta0 = 0.05, sdt = 1e-3;

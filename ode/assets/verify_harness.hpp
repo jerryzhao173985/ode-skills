@@ -165,6 +165,29 @@ struct Settle {
 // "holds" a pose via violent actuation passes a pose check but is not actually stable.
 struct Effort { double total = 0; void add(double u, double dt) { total += std::fabs(u) * dt; } };
 
+// reaction-force probe (the dJointFeedback API) — stateful peak accumulator over a run.
+// For OVER-CONSTRAINED / closed loops the constraint violation lives in the REACTION FORCE, not the anchor
+// position: ODE's ERP heals |anchor−anchor2| every step, so a loop whose joints fight each other still looks
+// "intact" by separation. Attach to the closing joint, update() after each dWorldStep, then assert the peak
+// reaction force/torque stays bounded (a fighting loop diverges in force, not position).
+// LIFETIME: ODE stores a POINTER to .fb, so this probe must outlive the world and must NOT be copied/moved
+// after attach() (a copy would leave ODE pointing at the original's fb).
+struct JointForceProbe {
+    dJointFeedback fb{};                                        // ODE fills f1/t1 (on body1) + f2/t2 (on body2) each step
+    double peakF = 0, peakT = 0, lastF = 0, lastT = 0;          // running peak |force| / |torque| over both bodies
+    JointForceProbe() = default;
+    JointForceProbe(const JointForceProbe&) = delete;
+    JointForceProbe& operator=(const JointForceProbe&) = delete;
+    void attach(dJointID j) { dJointSetFeedback(j, &fb); }      // ONCE, after dJointAttach, before stepping
+    static double mag3(const dReal* v) { return std::sqrt((double)v[0]*v[0] + (double)v[1]*v[1] + (double)v[2]*v[2]); }
+    void update() {                                            // AFTER each dWorldStep
+        double f1 = mag3(fb.f1), f2 = mag3(fb.f2); lastF = f1 > f2 ? f1 : f2;
+        double t1 = mag3(fb.t1), t2 = mag3(fb.t2); lastT = t1 > t2 ? t1 : t2;
+        if (lastF > peakF) peakF = lastF;
+        if (lastT > peakT) peakT = lastT;
+    }
+};
+
 // --- pass/fail accumulator → exit-code verdict ------------------------------
 struct Checks {
     int passed = 0, failed = 0;
